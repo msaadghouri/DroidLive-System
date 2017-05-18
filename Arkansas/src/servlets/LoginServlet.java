@@ -21,17 +21,27 @@ import com.arkansas.dao.EnrollmentDAOImpl;
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-    /**
-     * Default constructor. 
-     */
-    public LoginServlet() {
-    }
+	/**
+	 * Default constructor. 
+	 */
+	public LoginServlet() {
+	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		HttpSession session= request.getSession();
+		EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
+		List<MyUserBean> allUsers=daoImpl.getUsersList();
+		if(session.getAttribute("disData")!=null){
+			session.removeAttribute("disData");
+		}else if(session.getAttribute("hisData")!=null){
+			session.removeAttribute("hisData");
+		}
+		session.setAttribute("userData", allUsers);
+		response.setContentType("text/html");
+		response.sendRedirect("userDisplay.jsp");
 	}
 
 	/**

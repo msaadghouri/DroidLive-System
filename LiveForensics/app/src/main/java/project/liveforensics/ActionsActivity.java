@@ -51,7 +51,7 @@ public class ActionsActivity extends Activity implements View.OnClickListener {
 
         discoverButton = (Button) findViewById(R.id.discovery);
         discoverButton.setOnClickListener(this);
-        discoveryBean = new DiscoveryBean();
+//        discoveryBean = new DiscoveryBean();
 
 //        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
 //            @Override

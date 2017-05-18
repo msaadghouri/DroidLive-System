@@ -1,181 +1,46 @@
 package com.arkansas.service;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import com.arkansas.clientenrollment.beans.AgentInfo;
 import com.arkansas.clientenrollment.beans.DiscoveryBean;
-import com.arkansas.clientenrollment.beans.Interfaces;
+import com.arkansas.clientenrollment.beans.HistoryBean;
 import com.arkansas.clientenrollment.beans.MyUserBean;
-import com.arkansas.clientenrollment.beans.OsInfo;
-import com.arkansas.clientenrollment.beans.Users;
+import com.arkansas.clientenrollment.beans.ServerCLBean;
+import com.arkansas.clientenrollment.beans.ServerDCBean;
+import com.arkansas.clientenrollment.beans.ServerSMSBean;
 import com.arkansas.dao.EnrollmentDAOImpl;
 import com.arkansas.dao.IEnrollmentDAO;
 
 @Path("/arkansas")
 public class Service {
 	public static String FIREBASE_SERVER_KEY = "AAAAwJPZdJk:APA91bFodWExOdhQrFq7rqcx1TOscgDk1NGNx-R2MMFd_VsxfscHER5SpBhshH7noTKdCXWXFAIVheJ2_CFP53dkQCggsFhi-jZMNiR8y0K_rM_HQzuNkLRn7JPpIm_yodUFFPXZBd2n";
-	@GET
-	@Path("/RestHello/{name}")
-	public String HelloMethod(@PathParam("name") String name){
 
-		return "HELLO "+name.toUpperCase();
-	}//http://localhost:8080/Arkansas/WebRest/arkansas/RestHello/saad
+	//	@GET	
+	//	@Path("/getAgentInfo/{userName}")
+	//	@Produces(MediaType.APPLICATION_JSON)
+	//	public Response getAgentInfo(@PathParam("userName") String userName){
+	//
+	//		AgentInfo agentInfo=new AgentInfo();
+	//
+	//		if(userName.trim() != null && userName.trim() != "" && userName.trim() != "0"){
+	//
+	//			System.out.println(userName+" has trying get AgentInfo");
+	//
+	//			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
+	//
+	//			agentInfo=IDAO.getAgentInfo(userName);
+	//
+	//			System.out.println(agentInfo);				
+	//		}
+	//		return Response.status(200).entity(agentInfo.toString()).build();			
+	//	}
 
-	@GET	
-	@Path("/getUsers/{userName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUsers(@PathParam("userName") String userName){
 
-		Users user=new Users();
-
-		if(userName.trim() != null && userName.trim() != "" && userName.trim() != "0"){
-
-			System.out.println(userName+" has trying get Users");
-
-			IEnrollmentDAO IDAO =new EnrollmentDAOImpl();
-
-			user=IDAO.getUsers(userName);
-
-			System.out.println(user);				
-		}
-		return Response.status(200).entity(user.toString()).build();			
-	}
-
-	@GET	
-	@Path("/getAgentInfo/{userName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAgentInfo(@PathParam("userName") String userName){
-
-		AgentInfo agentInfo=new AgentInfo();
-
-		if(userName.trim() != null && userName.trim() != "" && userName.trim() != "0"){
-
-			System.out.println(userName+" has trying get AgentInfo");
-
-			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
-
-			agentInfo=IDAO.getAgentInfo(userName);
-
-			System.out.println(agentInfo);				
-		}
-		return Response.status(200).entity(agentInfo.toString()).build();			
-	}
-
-	@GET	
-	@Path("/getInterfaces/{userName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getInterfaces(@PathParam("userName") String userName){
-
-		Interfaces interfaces=new Interfaces();
-
-		if(userName.trim() != null && userName.trim() != "" && userName.trim() != "0"){
-
-			System.out.println(userName+" has trying get Interfaces");
-
-			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
-
-			interfaces=IDAO.getInterfaces(userName);
-
-			System.out.println(interfaces);					
-		}
-		return Response.status(200).entity(interfaces.toString()).build();			
-	}
-
-	@GET	
-	@Path("/getOsInfo/{userName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getOsInfo(@PathParam("userName") String userName){
-
-		OsInfo osInfo=new OsInfo();
-
-		if(userName.trim() != null && userName.trim() != "" && userName.trim() != "0"){
-
-			System.out.println(userName+" has trying get OsInfo");
-
-			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
-
-			osInfo=IDAO.getOsInfo(userName);
-
-			System.out.println(osInfo);				
-		}
-		return Response.status(200).entity(osInfo.toString()).build();			
-	}
-
-	@POST	
-	@Path("/submitAgentInfo/{userName}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public boolean submitAgentInfo(@PathParam("userName") String userName,AgentInfo agentInfo){
-
-		boolean flag=false;	
-
-		System.out.println("UserName : "+userName+" is submitting AgentInfo : "+ agentInfo);
-
-		if(userName != "" && agentInfo != null){
-
-			System.out.println(userName + " has trying to submit his AgentInfo with values as "+ agentInfo);
-
-			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
-
-			flag=IDAO.submitAgentInfo(userName, agentInfo);
-
-			System.out.println("UserName: "+ userName + " submitAgentInfo got value As : " + flag);		
-		}		
-		return flag;			
-	}
-
-	@POST	
-	@Path("/submitInterfaces/{userName}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public boolean submitInterfaces(@PathParam("userName") String userName,Interfaces interfaces){
-
-		boolean flag=false;	
-
-		System.out.println("UserName : "+userName+" is submitting Interfaces : "+ interfaces);
-
-		if(userName != "" && interfaces != null){
-
-			System.out.println(userName + " has trying to submit his Interfaces with values as "+ interfaces);
-
-			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
-
-			flag=IDAO.submitInterfaces(userName, interfaces);
-
-			System.out.println("UserName: "+ userName + " submitInterfaces got value As : " + flag);		
-		}		
-		return flag;			
-	}
-
-	@POST	
-	@Path("/submitOsInfo/{userName}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public boolean submitOsInfo(@PathParam("userName") String userName,OsInfo osInfo){
-
-		boolean flag=false;	
-
-		System.out.println("UserName : "+userName+" is submitting OsInfo : "+ osInfo);
-
-		if(userName != "" && osInfo != null){
-
-			System.out.println(userName + " has trying to submit his OsInfo with values as "+ osInfo);
-
-			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
-
-			flag=IDAO.submitOsInfo(userName, osInfo);
-
-			System.out.println("UserName: "+ userName + " submitOsInfo got value As : " + flag);		
-		}		
-		return flag;			
-	}
 
 	@POST	
 	@Path("/clientEnroll/{userName}")
@@ -212,6 +77,64 @@ public class Service {
 		if(userRefId != "" && discoveryBean != null){			
 			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
 			flag=IDAO.submitDiscovery(userRefId,discoveryBean);
+		}		
+		return flag;			
+	}
+	@POST	
+	@Path("/submitHistory/{userRefId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean submitBrowserHistory(@PathParam("userRefId") String userRefId,HistoryBean historyBean){
+		boolean flag=false;	
+		if(userRefId != "" && historyBean != null){		
+			System.out.println(historyBean);
+			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
+			flag=IDAO.submitHistory(userRefId,historyBean);
+		}		
+		return flag;			
+	}
+	
+	@POST	
+	@Path("/submitCallLogs/{userRefId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean submitCallLogs(@PathParam("userRefId") String userRefId,ServerCLBean sclBean){
+		System.out.println("Submit Call Logs");
+		boolean flag=false;	
+		if(userRefId != "" && sclBean != null){		
+			System.out.println("SERVICE "+sclBean);
+			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
+			flag=IDAO.submitCallLogs(userRefId,sclBean);
+		}		
+		return flag;			
+	}
+	
+	@POST	
+	@Path("/submitContacts/{userRefId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean submitContacts(@PathParam("userRefId") String userRefId,ServerDCBean sdcBean){
+		System.out.println("Submit Contacts");
+		boolean flag=false;	
+		if(userRefId != "" && sdcBean != null){		
+			System.out.println("SERVICE "+sdcBean);
+			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
+			flag=IDAO.submitContacts(userRefId,sdcBean);
+		}		
+		return flag;			
+	}
+	
+	@POST	
+	@Path("/submitSMS/{userRefId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean submitSMS(@PathParam("userRefId") String userRefId,ServerSMSBean smsBean){
+		System.out.println("Submit SMS");
+		boolean flag=false;	
+		if(userRefId != "" && smsBean != null){		
+			System.out.println("SERVICE "+smsBean);
+			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
+			flag=IDAO.submitSMS(userRefId,smsBean);
 		}		
 		return flag;			
 	}

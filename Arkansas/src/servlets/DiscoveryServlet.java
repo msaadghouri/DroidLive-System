@@ -47,7 +47,7 @@ public class DiscoveryServlet extends HttpServlet {
 		if(session.getAttribute("disData")!=null)
 			session.setAttribute("disData", null);
 		response.setContentType("text/html");
-		response.sendRedirect("NewFile.jsp");
+		response.sendRedirect("NewMenu.jsp");
 	}
 
 	/**
@@ -55,12 +55,7 @@ public class DiscoveryServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session= request.getSession();
-		//		if((request.getParameter("discoveryButton"))!= null)
-		//		{
-		//			EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
-		//			DiscoveryBean discoveredData=daoImpl.getDiscoveredData((String) session.getAttribute("clientID"));
-		//			session.setAttribute("disData", discoveredData);
-		//		}
+
 		if((request.getParameter("discoverFlow"))!= null)
 		{
 			String userRefId=(String) session.getAttribute("clientID");
@@ -71,18 +66,44 @@ public class DiscoveryServlet extends HttpServlet {
 			RequestClass class1= new RequestClass();
 			String resValue = class1.sendRequest(userRefId, fcmId, flowName, flowDate, transId);
 			System.out.println("Request Sent Result: "+resValue);
-		}else{
+		}
+		else if((request.getParameter("historyFlow"))!= null)
+		{
+			String userRefId=(String) session.getAttribute("clientID");
+			String fcmId= (String) session.getAttribute("fcmRegId");
+			int transId=getTransactionId();
+			String flowName="BrowserHistory";
+			Date flowDate=new Date(Calendar.getInstance().getTime().getTime());
+			RequestClass class1= new RequestClass();
+			String resValue = class1.sendRequest(userRefId, fcmId, flowName, flowDate, transId);
+			System.out.println("Request Sent Result: "+resValue);
+		}
+		else{
 
-			//			String transID = request.getParameter("data");
-			int tID=Integer.parseInt(request.getParameter("data"));
-			//			String type=(String) session.getAttribute("calScale");
+			String transID = request.getParameter("data");
+			String arr[] = transID.split(" ", 2);
+			String flowName = arr[0].trim();   
+			String iD = arr[1].trim();
+			int tID = Integer.parseInt(iD);
 			System.out.println(tID);
 			EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
-			DiscoveryBean discoveredData=daoImpl.getDiscoveredData((String) session.getAttribute("clientID"),tID);
-			session.setAttribute("disData", discoveredData);
+			if(session.getAttribute("disData")!=null){
+				session.removeAttribute("disData");
+			}else if(session.getAttribute("hisData")!=null){
+				session.removeAttribute("hisData");
+			}
+			if(flowName.equalsIgnoreCase("Discover")){
+				DiscoveryBean discoveredData=daoImpl.getDiscoveredData((String) session.getAttribute("clientID"),tID);
+				session.setAttribute("disData", discoveredData);		
+			}else if (flowName.equalsIgnoreCase("BrowserHistory")) {
+				String historyData=daoImpl.getHistoryData((String) session.getAttribute("clientID"),tID);
+				//System.out.println("saad "+historyData.replaceAll(" ", "\n"));
+				session.setAttribute("hisData", historyData.replaceAll(" ", "<br/>"));
+			}
+
 		}
 		response.setContentType("text/html");
-		response.sendRedirect("NewFile.jsp");
+		response.sendRedirect("NewMenu.jsp");
 	}
 
 	/**

@@ -180,6 +180,27 @@ public class DiscoveryBean implements Serializable {
         this.createdDate = createdDate;
     }
 
+    public DiscoveryBean(String userRefId, String system, String node, String release, String version, String machine, String kernel, String fqdn, String installDate, String clientName, String clientVersion, String clientDescription, Date buildTime, String macAddress, String ipv4, String ipv6, Date createdDate, int transactionId) {
+        this.userRefId = userRefId;
+        this.system = system;
+        this.node = node;
+        this.release = release;
+        this.version = version;
+        this.machine = machine;
+        this.kernel = kernel;
+        this.fqdn = fqdn;
+        this.installDate = installDate;
+        this.clientName = clientName;
+        this.clientVersion = clientVersion;
+        this.clientDescription = clientDescription;
+        this.buildTime = buildTime;
+        this.macAddress = macAddress;
+        this.ipv4 = ipv4;
+        this.ipv6 = ipv6;
+        this.createdDate = createdDate;
+        this.transactionId = transactionId;
+    }
+
     @Override
     public String toString() {
         return "{\"discoverId\":" + "\"" + discoverId

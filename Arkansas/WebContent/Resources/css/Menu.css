@@ -1,0 +1,98 @@
+/* @CHARSET "UTF-8"; */
+.sidenava {
+	display: none;
+	height: 100%;
+	width: 250px;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	background-color: #e74c3c;
+	overflow-x: hidden;
+	padding-top: 60px;
+}
+
+.sidenava a {
+	padding: 0px 8px 8px 32px;
+	text-decoration: none;
+	font-size: 18px;
+	color: #ffffff;
+	display: block;
+	transition: 0.3s
+}
+
+.sidenava p {
+	text-align: centre;
+	font-size: 20px;
+	color: #000000;
+	display: block;
+	transition: 0.3s;
+	text-decoration: none;
+}
+
+.sidenava a:hover, .offcanvas a:focus {
+	color: #000;
+}
+
+.sidenava .closebtn {
+	position: absolute;
+	top: 0;
+	right: 25px;
+	font-size: 30px;
+	margin-left: 50px;
+}
+
+@media screen and (max-height: 450px) {
+	.sidenava {
+		padding-top: 15px;
+	}
+	.sidenava a {
+		font-size: 18px;
+	}
+}
+
+div.scroll {
+	height: 200px;
+	overflow: scroll;
+}
+
+hr {
+	display: block;
+	height: 1px;
+	border: 0;
+	border-top: 1px solid #ccc;
+	margin: 1em 0;
+	padding: 0;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+th {
+	padding: 0.25rem;
+	text-align: left;
+	border: 1px solid #ccc;
+	background: #e74c3c;
+	color: #fff;
+}
+
+td {
+	padding: 0.25rem;
+	text-align: left;
+	border: 1px solid #ccc;
+}
+
+tbody tr:nth-child(even) {
+	background: #e6e6e6;
+}
+
+.boxDesign {
+	padding: 10px;
+	margin-bottom: 10px;
+	/* border: 1px solid #e3e3e3;
+	border-radius: 1px; */
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05)
+}
