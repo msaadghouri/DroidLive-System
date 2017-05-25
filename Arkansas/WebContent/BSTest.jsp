@@ -6,12 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css"
-	href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
-
-<script type="text/javascript"
-	src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script type="text/javascript" src="Resources/others/jquery/jquery.min.1.12.4.js"></script>
 
 <script
 	src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
@@ -34,15 +29,11 @@
 <body>
 
 	<div id="network"></div>
-	<script src="Resources/bootstrap/dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="Resources/others/canvasjs/canvasjs.min.js"></script>
-
 
 	<script type="text/javascript">
-		$(function() {
-
-		$('#network').cytoscape({
-			layout : {
+	var cy = cytoscape({
+		  container: document.getElementById('network'), // container to render in
+		  layout : {
 				name : 'cose',
 				padding : 10,
 				randomize : true
@@ -72,14 +63,13 @@
 				nodes : ${nodes},
 				edges : ${edges}
 			},
-			minZoom: 0.5,
-			maxZoom: 5,
+			minZoom: 0.2,
+			maxZoom: 2,
 			ready : function() {
 			window.network = this;
 			}
-		});
+	});
 
-		});
 	</script>
 
 </body>

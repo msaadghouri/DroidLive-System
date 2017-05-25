@@ -220,9 +220,15 @@ public class Test extends HttpServlet {
 			String d2 = aa.get(1);
 
 			ArrayList<BeanDaysofWeek> daysAnalysis = bHDialog.getDaysofWeek(d1,d2,userRefId);
+			ArrayList<JSONObject> monthlyAnalysis = bHDialog.getMonthlyAnalysis(d1,d2,userRefId);
 			ArrayList<JSONObject> searchedTerms = bHDialog.getTopKeywords(d1,d2,userRefId);
+			ArrayList<JSONObject> topDomains = bHDialog.getTopDomain(d1,d2,userRefId);
+			ArrayList<JSONObject> recentVisits = bHDialog.getRecentVisits(d1,d2,userRefId);
 			session.setAttribute("bhDayAnalysis", daysAnalysis);
+			session.setAttribute("monthlyAnalysis", monthlyAnalysis);
 			session.setAttribute("searchedTerms", searchedTerms);
+			session.setAttribute("topDomains", topDomains);
+			session.setAttribute("recentVisits", recentVisits);
 			response.setContentType("text/html");
 			response.sendRedirect("VisBrowser.jsp");
 		}

@@ -1,18 +1,27 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<script type="text/javascript" src="Resources/others/jquery/jquery.min.1.12.4.js"></script>
+
+<script type="text/javascript" src="Resources/others/moment/moment.min.2.18.1.js"></script>
+
 <link rel="stylesheet" type="text/css"
-	href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+	href="Resources/bootstrap/dist/css/bootstrap.css" />
+
+<!-- <script type="text/javascript"
+	src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script> -->
+
 <script type="text/javascript"
-	src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+	src="Resources/others/datepicker/daterangepicker.2.1.25.js"></script>
+
 <link rel="stylesheet" type="text/css"
 	href="Resources/others/datepicker/daterangepicker.css" />
 
-<link href="Resources/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="Resources/css/Menu.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css"
 	href="Resources/jQCloud-master/jqcloud/jqcloud.css" />
@@ -94,52 +103,43 @@
 		<div class="col-md-6">
 			<div class="boxDesign" style="height: 350px">
 				<b>Table of Domains</b>
-
-				<table style="margin-top: 20px">
-					<tr>
-						<th>Domain Name</th>
-						<th>Frequency</th>
-					</tr>
-					<tr>
-						<td>www.google.com</td>
-						<td>50</td>
-					</tr>
-					<tr>
-						<td>www.facebook.com</td>
-						<td>70</td>
-					</tr>
-				</table>
-
+				<div class="scroll" style="height: 350px">
+					<table style="margin-top: 20px">
+						<tr>
+							<th>Domain Name</th>
+							<th>Frequency</th>
+						</tr>
+						<c:set var="i" value="0" />
+						<c:forEach items="${topDomains}" var="td" begin="${i}">
+							<tr>
+								<td>${td.domainName}</td>
+								<td>${td.frequency}</td>
+							</tr>
+						</c:forEach>
+					</table>
+				</div>
 			</div>
 		</div>
 
 		<div class="col-md-6">
+
 			<div class="boxDesign" style="height: 350px">
-				<b>Table of Last 10 url visits</b>
-
-				<table style="margin-top: 20px">
-					<tr>
-						<th>URL Name</th>
-						<th>Frequency</th>
-					</tr>
-					<tr>
-						<td>https://www.google.com/1234567890</td>
-						<td>5</td>
-					</tr>
-					<tr>
-						<td>https://www.google.com/1234567890</td>
-						<td>5</td>
-					</tr>
-					<tr>
-						<td>https://www.google.com/1234567890</td>
-						<td>5</td>
-					</tr>
-					<tr>
-						<td>https://www.google.com/1234567890</td>
-						<td>5</td>
-					</tr>
-				</table>
-
+				<b>Table of Recent Visits</b>
+				<div class="scroll" style="height: 350px">
+					<table style="margin-top: 20px">
+						<tr>
+							<th>URL Name</th>
+							<th>Searched Date</th>
+						</tr>
+						<c:set var="i" value="0" />
+						<c:forEach items="${recentVisits}" var="ru" begin="${i}">
+							<tr>
+								<td>${ru.urlName}</td>
+								<td>${ru.sDate}</td>
+							</tr>
+						</c:forEach>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -234,44 +234,19 @@
 		chart.render();
 		}
 
-		var yearLine = [ {
-			x : new Date(2012, 00, 1),
-			y : 450
-		}, {
-			x : new Date(2012, 01, 1),
-			y : 414
-		}, {
-			x : new Date(2012, 02, 1),
-			y : 520,
-		}, {
-			x : new Date(2012, 03, 1),
-			y : 460
-		}, {
-			x : new Date(2012, 04, 1),
-			y : 450
-		}, {
-			x : new Date(2012, 05, 1),
-			y : 500
-		}, {
-			x : new Date(2012, 06, 1),
-			y : 480
-		}, {
-			x : new Date(2012, 07, 1),
-			y : 480
-		}, {
-			x : new Date(2012, 08, 1),
-			y : 410,
-		}, {
-			x : new Date(2012, 09, 1),
-			y : 500
-		}, {
-			x : new Date(2012, 10, 1),
-			y : 480
-		}, {
-			x : new Date(2012, 11, 1),
-			y : 510
-		} ];
-
+		var mA = '${monthlyAnalysis}';
+		var yearLine = [];
+		if (mA.length != 0) {
+			tabData = JSON.parse(mA);
+			for (var i = 0; i < tabData.length; i++) {
+				var firstdate = tabData[i].startDate;
+				var res = firstdate.split('-');
+				yearLine.push({
+					x : new Date(res[0], res[1] - 1, res[2]),
+					y : parseInt(tabData[i].frequency)
+				});
+			}
+		}
 		renderMyYear(linechartContainer, yearLine);
 
 		function renderMyYear(theDIVid, myData) {

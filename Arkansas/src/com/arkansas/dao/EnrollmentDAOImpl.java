@@ -161,7 +161,7 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		List<RequestBean> allReqList= new ArrayList<>();
 		try {
 			conn=DriverManager.getConnection(url);	
-			String queryStr="Select * from RequestTable where UserRefId = '"+userRefId+"'";
+			String queryStr="Select * from RequestTable where UserRefId = '"+userRefId+"' order by FlowDate desc";
 			Statement stmt = conn.createStatement();
 			ResultSet rset = stmt.executeQuery(queryStr);
 			while (rset.next())

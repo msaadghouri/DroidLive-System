@@ -1,14 +1,21 @@
 package project.liveforensics;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.TelephonyManager;
 import android.view.View;
@@ -31,8 +38,12 @@ import javax.net.ssl.HttpsURLConnection;
 
 import project.modelClass.MyUserBean;
 
+import static project.liveforensics.ConstantUtils.PERMISSIONS_REQUIRED;
+import static project.liveforensics.ConstantUtils.PERMISSION_CALLBACK_CONSTANT;
+import static project.liveforensics.ConstantUtils.REQUEST_PERMISSION_SETTING;
+
 public class ClientEnrollment extends Activity {
-    private Button clientEnroll;
+    private Button clientEnroll, checkPermissions;
     private ProgressDialog pDialog;
     private MyUserBean initialUser;
     private SessionManager session;
@@ -41,6 +52,7 @@ public class ClientEnrollment extends Activity {
     public static String clientID;
     private EditText userName, fullName;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private SharedPreferences permissionStatus,buttonStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +60,7 @@ public class ClientEnrollment extends Activity {
         setContentView(R.layout.activity_client_enrollment);
         initGUI();
         registerLayout.setVisibility(View.GONE);
-
+        permissionStatus = getSharedPreferences("permissionStatus",MODE_PRIVATE);
         session = new SessionManager(getApplicationContext());
         boolean flag = session.checkEnroll();
         if (flag) {
@@ -68,6 +80,88 @@ public class ClientEnrollment extends Activity {
             }
         };
 
+        permissionStatus = getSharedPreferences("permissionStatus", MODE_PRIVATE);
+        buttonStatus = getSharedPreferences("buttonStatus", MODE_PRIVATE);
+
+        if(buttonStatus.getBoolean("buttonStatus",false)){
+            clientEnroll.setEnabled(true);
+        }
+
+        checkPermissions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[0]) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[1]) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[2]) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[3]) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[4]) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[5]) != PackageManager.PERMISSION_GRANTED) {
+
+
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[0])
+                            || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[1])
+                            || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[2])
+                            || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[3])
+                            || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[4])
+                            || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[5])) {
+                        //Show Information about why you need the permission
+                        AlertDialog.Builder builder = new AlertDialog.Builder(ClientEnrollment.this);
+                        builder.setTitle("Alert!");
+                        builder.setMessage("Accept all permissions to proceed.");
+                        builder.setPositiveButton("Grant", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                                ActivityCompat.requestPermissions(ClientEnrollment.this, PERMISSIONS_REQUIRED, PERMISSION_CALLBACK_CONSTANT);
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builder.show();
+                    } else if (permissionStatus.getBoolean(PERMISSIONS_REQUIRED[0], false)) {
+                        //Previously Permission Request was cancelled with 'Dont Ask Again',
+                        // Redirect to Settings after showing Information about why you need the permission
+                        AlertDialog.Builder builder = new AlertDialog.Builder(ClientEnrollment.this);
+                        builder.setTitle("Alert!");
+                        builder.setMessage("Accept all permissions to proceed.");
+                        builder.setPositiveButton("Grant", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                intent.setData(uri);
+                                startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+                                Toast.makeText(getBaseContext(), "Go to Permissions", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builder.show();
+                    } else {
+                        //just request the permission
+                        ActivityCompat.requestPermissions(ClientEnrollment.this, PERMISSIONS_REQUIRED, PERMISSION_CALLBACK_CONSTANT);
+                    }
+
+
+                    SharedPreferences.Editor editor = permissionStatus.edit();
+                    editor.putBoolean(PERMISSIONS_REQUIRED[0], true);
+                    editor.commit();
+                } else {
+                    //You already have the permission, just go ahead.
+                    proceedAfterPermission();
+                }
+            }
+        });
+        
         initialUser = new MyUserBean();
         clientEnroll.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +186,7 @@ public class ClientEnrollment extends Activity {
 
     private void initGUI() {
         clientEnroll = (Button) findViewById(R.id.clientEnrollment);
+        checkPermissions= (Button) findViewById(R.id.checkPermissions);
         userName = (EditText) findViewById(R.id.userName);
         fullName = (EditText) findViewById(R.id.fullName);
         registerLayout = (LinearLayout) findViewById(R.id.registerLayout);
@@ -188,5 +283,79 @@ public class ClientEnrollment extends Activity {
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_CALLBACK_CONSTANT) {
+            //check if all permissions are granted
+            boolean allgranted = false;
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    allgranted = true;
+                } else {
+                    allgranted = false;
+                    break;
+                }
+            }
+
+            if (allgranted) {
+                proceedAfterPermission();
+            } else if (ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[0])
+                    || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[1])
+                    || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[2])
+                    || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[3])
+                    || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[4])
+                    || ActivityCompat.shouldShowRequestPermissionRationale(ClientEnrollment.this, PERMISSIONS_REQUIRED[5])) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ClientEnrollment.this);
+                builder.setTitle("Alert!");
+                builder.setMessage("Accept all permissions to proceed.");
+                builder.setPositiveButton("Grant", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        ActivityCompat.requestPermissions(ClientEnrollment.this, PERMISSIONS_REQUIRED, PERMISSION_CALLBACK_CONSTANT);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                builder.show();
+            } else {
+                Toast.makeText(getBaseContext(), "Unable to get Permissions", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PERMISSION_SETTING) {
+            if (ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[0]) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[1]) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[2]) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[3]) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[4]) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[5]) == PackageManager.PERMISSION_GRANTED) {
+                //Got Permission
+                proceedAfterPermission();
+            } else {
+                Toast.makeText(getBaseContext(), "Accept all permissions", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void proceedAfterPermission() {
+
+        Toast.makeText(getBaseContext(), "We got All Permissions", Toast.LENGTH_LONG).show();
+        SharedPreferences.Editor editor = buttonStatus.edit();
+        editor.putBoolean("buttonStatus", true);
+        editor.commit();
+        clientEnroll.setEnabled(true);
     }
 }

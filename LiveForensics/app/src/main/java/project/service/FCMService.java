@@ -149,22 +149,6 @@ public class FCMService extends FirebaseMessagingService {
                 String ipv4 = getIPAddress(true);
                 String ipv6 = getIPAddress(false);
 
-//                discoveryBean.setUserRefId(userRefId);
-//                discoveryBean.setSystem("Android");
-//                discoveryBean.setNode(manufacturer + " " + myDeviceModel);
-//                discoveryBean.setRelease(fName);
-//                discoveryBean.setVersion(sysVersion);
-//                discoveryBean.setMachine(arch);
-//                discoveryBean.setKernel(kernel);
-//                discoveryBean.setFQDN(manufacturer + " " + myDeviceModel);
-//                discoveryBean.setInstallDate(dateText);
-//                discoveryBean.setClientName(appName);
-//                discoveryBean.setClientVersion(version);
-//                discoveryBean.setBuildTime(installedSQlDate);
-//                discoveryBean.setClientDescription(appName + " " + user + " " + arch);
-//                discoveryBean.setMacAddress(macAddress);
-//                discoveryBean.setIpv4(ipv4);
-//                discoveryBean.setIpv6(ipv6);
                 java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
 //                discoveryBean.setCreatedDate(sqlDate);
 //                discoveryBean.setTransactionId(transactionID);
@@ -180,14 +164,11 @@ public class FCMService extends FirebaseMessagingService {
                 mCur.moveToFirst();
                 String url = "";
                 String date = "";
-               // StringBuilder builder = null;
 
                 if (mCur.getCount() > 0) {
-                   // builder = new StringBuilder();
                     while (!mCur.isAfterLast()) {
                         url = mCur.getString(mCur.getColumnIndex("url"));
                         date = mCur.getString(mCur.getColumnIndex("date"));
-                       // builder.append("[" + longToDateString(Long.valueOf(date)) + "] " + url + " ");
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("url", url.toString());
                         jsonObject.put("date", longToDateString(Long.valueOf(date)));
@@ -198,7 +179,6 @@ public class FCMService extends FirebaseMessagingService {
                 }
                 mCur.close();
                 java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
-                //Log.d("builder ", builder.toString());
                 historyBean = new HistoryBean(userRefId, historyArray, sqlDate, transactionID);
                 Log.d("builder ", historyBean.toString());
                 new BrwoserHistory().execute(userRefId, historyBean.toString());
@@ -386,6 +366,11 @@ public class FCMService extends FirebaseMessagingService {
         Date date1 = new Date(time);
         SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
         return df2.format(date1);
+    }
+
+    private java.sql.Date longToSQLDate(long time) {
+        java.sql.Date date1 = new java.sql.Date(time);
+        return date1;
     }
 
     public static String getIPAddress(boolean ipaddr) {

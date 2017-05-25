@@ -1,19 +1,25 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1" isELIgnored="false"%>
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"
+	isELIgnored="false"%>
+<%
+	if (session.getAttribute("userName") == null || session.getAttribute("userName") == "") {
+		response.sendRedirect("Index.jsp");
+	}
+%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link href="Resources/css/Menu.css" rel="stylesheet">
-<link href="Resources/css/Basic.css" rel="stylesheet">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+
 <title>Live Forensics|Enrolled Clients</title>
 </head>
 <body>
 	<h3>DROID LIVE FORENSIC TOOL</h3>
-	<h4>Enrolled Clients</h4>
+	<h4 style="text-align: center;">Enrolled Clients</h4>
+	<a href="logout.jsp"> Log out</a>
 	<table>
 		<thead>
 			<tr>
@@ -21,7 +27,6 @@
 				<th>User Name</th>
 				<th>Full Name</th>
 				<th>First LogIn</th>
-				<!-- <th>Last LogIn</th> -->
 				<th>Home Directory</th>
 				<th></th>
 			</tr>
@@ -34,7 +39,6 @@
 					<td>${user.userName}</td>
 					<td>${user.fullName}</td>
 					<td>${user.firstLogOn}</td>
-					<%-- <td>${user.lastLogOn}</td> --%>
 					<td>${user.homeDir}</td>
 					<td>
 						<form id="hello">

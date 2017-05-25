@@ -15,7 +15,7 @@ import java.util.List;
  *
  */
 public class ConstantUtils {
-	protected Connection getConn()
+	public Connection getConn()
 	{
 		String url=null;
 		try {
