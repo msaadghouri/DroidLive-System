@@ -17,7 +17,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +33,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -52,7 +53,7 @@ public class ClientEnrollment extends Activity {
     public static String clientID;
     private EditText userName, fullName;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private SharedPreferences permissionStatus,buttonStatus;
+    private SharedPreferences permissionStatus, buttonStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,14 +61,20 @@ public class ClientEnrollment extends Activity {
         setContentView(R.layout.activity_client_enrollment);
         initGUI();
         registerLayout.setVisibility(View.GONE);
-        permissionStatus = getSharedPreferences("permissionStatus",MODE_PRIVATE);
+        permissionStatus = getSharedPreferences("permissionStatus", MODE_PRIVATE);
         session = new SessionManager(getApplicationContext());
         boolean flag = session.checkEnroll();
         if (flag) {
             constantLay.setVisibility(View.VISIBLE);
-//            startActivity(new Intent(ClientEnrollment.this, ActionsActivity.class));
-//            finish();
         }
+
+//        SharedPreferences testing = getApplicationContext().getSharedPreferences(ConstantUtils.SHARED_PREF, 0);
+//        String fcmRegId = testing.getString("regId", "saad");
+//        System.out.println("===================================="+fcmRegId);
+//        if (fcmRegId != null) {
+//            registerLayout.setVisibility(View.VISIBLE);
+//        }
+
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -83,7 +90,7 @@ public class ClientEnrollment extends Activity {
         permissionStatus = getSharedPreferences("permissionStatus", MODE_PRIVATE);
         buttonStatus = getSharedPreferences("buttonStatus", MODE_PRIVATE);
 
-        if(buttonStatus.getBoolean("buttonStatus",false)){
+        if (buttonStatus.getBoolean("buttonStatus", false)) {
             clientEnroll.setEnabled(true);
         }
 
@@ -161,13 +168,13 @@ public class ClientEnrollment extends Activity {
                 }
             }
         });
-        
+
         initialUser = new MyUserBean();
         clientEnroll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-                clientID = "C." + telephonyManager.getDeviceId();
+                int randomId = getRandomId();
+                clientID = "C." + randomId;
                 String appDirectory = getApplicationInfo().dataDir;
                 java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
                 SharedPreferences pref = getApplicationContext().getSharedPreferences(ConstantUtils.SHARED_PREF, 0);
@@ -186,13 +193,19 @@ public class ClientEnrollment extends Activity {
 
     private void initGUI() {
         clientEnroll = (Button) findViewById(R.id.clientEnrollment);
-        checkPermissions= (Button) findViewById(R.id.checkPermissions);
+        checkPermissions = (Button) findViewById(R.id.checkPermissions);
         userName = (EditText) findViewById(R.id.userName);
         fullName = (EditText) findViewById(R.id.fullName);
         registerLayout = (LinearLayout) findViewById(R.id.registerLayout);
-        constantLay=(RelativeLayout) findViewById(R.id.constantLay);
+        constantLay = (RelativeLayout) findViewById(R.id.constantLay);
     }
 
+    private int getRandomId() {
+        Random random = new Random();
+        long randomVal = System.currentTimeMillis() + Math.abs(random.nextLong());
+        int z = (int) (randomVal);
+        return Math.abs(z);
+    }
 
     private class Enroll extends AsyncTask<String, Void, String> {
 
@@ -229,6 +242,7 @@ public class ClientEnrollment extends Activity {
                 os.close();
 
                 int responseCode = conn.getResponseCode();
+                Log.d("doInBackground Code",""+responseCode);
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
                     BufferedReader in = new BufferedReader(new
                             InputStreamReader(
@@ -254,18 +268,16 @@ public class ClientEnrollment extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-
+            Log.d("onPostExecute",""+result);
             if (result.equalsIgnoreCase("true")) {
 //                super.onPostExecute(result);
                 pDialog.dismiss();
                 session.createSession();
-//                startActivity(new Intent(ClientEnrollment.this,
-//                        ActionsActivity.class));
-//                finish();
                 registerLayout.setVisibility(View.GONE);
                 constantLay.setVisibility(View.VISIBLE);
             } else {
                 pDialog.dismiss();
+                Log.d("onPostExecute Error",""+result);
                 Toast.makeText(getApplicationContext(),
                         "Failed", Toast.LENGTH_SHORT).show();
             }
@@ -358,4 +370,12 @@ public class ClientEnrollment extends Activity {
         editor.commit();
         clientEnroll.setEnabled(true);
     }
+//    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+//    private boolean hasUsageStatsPermission() {
+//        AppOpsManager appOps = (AppOpsManager)
+//                getSystemService(Context.APP_OPS_SERVICE);
+//        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+//                android.os.Process.myUid(), getPackageName());
+//        return mode == AppOpsManager.MODE_ALLOWED;
+//    }
 }

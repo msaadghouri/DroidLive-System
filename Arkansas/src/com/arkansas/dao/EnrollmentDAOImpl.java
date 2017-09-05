@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.json.simple.JSONObject;
 
+import com.arkansas.clientenrollment.beans.AccountsBean;
 import com.arkansas.clientenrollment.beans.CallLogsBean;
 import com.arkansas.clientenrollment.beans.ContactsBean;
 import com.arkansas.clientenrollment.beans.DiscoveryBean;
@@ -25,6 +26,7 @@ import com.arkansas.clientenrollment.beans.SMSBean;
 import com.arkansas.clientenrollment.beans.ServerCLBean;
 import com.arkansas.clientenrollment.beans.ServerDCBean;
 import com.arkansas.clientenrollment.beans.ServerSMSBean;
+import com.arkansas.clientenrollment.beans.UsageStatsBean;
 
 public class EnrollmentDAOImpl implements IEnrollmentDAO{
 	Connection conn=null;											
@@ -46,21 +48,15 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 			String dburl = "jdbc:mysql://localhost:3306/";
 			String dataBaseName = "arkansas";
 
-
 			url=dburl+dataBaseName+"?user="+dbuser+"&password="+dbpassword;
 			driver=driverclass;
 			Class.forName(driver);
-
 		}  
 		catch (ClassNotFoundException e) {
-
 			e.printStackTrace();
 		}		
 	}
 
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#getUsersList()
-	 */
 	@Override
 	public List<MyUserBean> getUsersList() {
 		List<MyUserBean> allUserList= new ArrayList<>();
@@ -91,9 +87,6 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#getDiscoveredData(java.lang.String)
-	 */
 	@Override
 	public DiscoveryBean getDiscoveredData(String clientRefID, int transID) {
 		DiscoveryBean discoveryBean = new DiscoveryBean();
@@ -183,6 +176,55 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		}
 	}
 
+	public String getUsageData(String clientRefID, int tID) {
+		String usageData=null;
+		try {
+			conn=DriverManager.getConnection(url);	
+			String queryStr="Select UsageStatsData from UsageStats where TransactionID = '"+tID+"' and UserRefId='"+ clientRefID +"'";
+			Statement stmt = conn.createStatement();
+			ResultSet rset = stmt.executeQuery(queryStr);
+			while (rset.next())
+			{
+				usageData = rset.getString("UsageStatsData");
+			}
+			rset.close();
+			stmt.close();
+			conn.close();
+			return usageData;
+		} catch (SQLException ex) {
+			return "Error Performing Request";
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public ArrayList<JSONObject> getDeviceAccounts(String clientRefID, int tID) {
+		ArrayList<JSONObject> list= new ArrayList<>();
+
+		try {
+			conn=DriverManager.getConnection(url);	
+			String queryStr="SELECT AccountType,AccountName FROM arkansas.DeviceAccount where TransactionID = '"+tID+"' and UserRefId='"+ clientRefID +"'";
+			Statement stmt = conn.createStatement();
+			ResultSet rset = stmt.executeQuery(queryStr);
+			while (rset.next())
+			{
+				String accType = rset.getString("AccountType");
+				String accName = rset.getString("AccountName");
+				JSONObject object= new JSONObject();
+				object.put("accType", accType);
+				object.put("accName", accName);
+				list.add(object);
+
+			}
+			rset.close();
+			stmt.close();
+			conn.close();
+			return list;
+		} catch (SQLException ex) {
+
+			return null;
+		}
+	}
+	
 	public boolean submitRequest(String userRefId,String firebaseRegID, String flowName, Date flowDate, int transactionID, String status) {
 		System.out.println("Submitting Request");
 		String agentQuery = "insert into RequestTable (TransactionID,UserRefId,FCMRegId,FlowName,FlowDate,RequestStatus) values(?,?,?,?,?,?)";
@@ -207,15 +249,7 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 			return false;
 		}
 	}
-	//	public static void main(String args[]){
-	//		EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
-	//		daoImpl.getUsersList();
-	//	}
 
-
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#submitMyUsers(java.lang.String, com.arkansas.clientenrollment.beans.MyUserBean)
-	 */
 	@Override
 	public boolean submitMyUsers(String userName, MyUserBean myUserBean) {
 		boolean flag=false;
@@ -245,15 +279,9 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		return flag;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#submitDiscovery(java.lang.String, com.arkansas.clientenrollment.beans.MyAgentInfoBean, com.arkansas.clientenrollment.beans.MyInterfaceBean, com.arkansas.clientenrollment.beans.MyOsInfoBean)
-	 */
 	@Override
 	public boolean submitDiscovery(String userRefId, DiscoveryBean discoveryBean) {
-
-
 		String subData = "insert into DiscoveryTable (UserRefId,System,Node,ReleaseForm,Version,Machine,Kernel,Fqdn,InstallDate,ClientName,ClientVersion,ClientDescription,BuildTime,MacAddress,Ipv4,Ipv6,CreatedDate,TransactionID) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
 		try{
 			conn=DriverManager.getConnection(url);	
 			PreparedStatement pstmt = conn.prepareStatement(subData);
@@ -290,39 +318,6 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		}
 	}
 
-	//	/* (non-Javadoc)
-	//	 * @see com.arkansas.dao.IEnrollmentDAO#submitHistory(java.lang.String, com.arkansas.clientenrollment.beans.HistoryBean)
-	//	 */
-	//	@Override
-	//	public boolean submitHistory(String userRefId, HistoryBean HistoryBean) {
-	//
-	//		String subData = "insert into HistoryTable (UserRefId,BrowserHistory,CreatedDate,TransactionID) values(?,?,?,?)";
-	//		System.out.println(HistoryBean);
-	//		try{
-	//			conn=DriverManager.getConnection(url);	
-	//			PreparedStatement pstmt = conn.prepareStatement(subData);
-	//			pstmt.setString(1, HistoryBean.getUserRefId());
-	//			pstmt.setString(2, HistoryBean.getBrowserHistory());
-	//			pstmt.setDate(3,HistoryBean.getCreatedDate());
-	//			pstmt.setInt(4, HistoryBean.getTransactionId());
-	//			pstmt.execute();
-	//
-	//			String updateStatus="UPDATE RequestTable SET RequestStatus = 'SUCCESS' WHERE TransactionID = '"+HistoryBean.getTransactionId()+"' and UserRefId = '"+HistoryBean.getUserRefId()+"'";
-	//			pstmt=conn.prepareStatement(updateStatus);
-	//			pstmt.execute();
-	//			pstmt.close();
-	//			conn.close();
-	//			return true;
-	//		}catch(SQLException e)
-	//		{
-	//			e.printStackTrace();
-	//			return false;
-	//		}
-	//	}
-
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#submitHistory(java.lang.String, com.arkansas.clientenrollment.beans.HistoryBean)
-	 */
 	@Override
 	public boolean submitHistory(String userRefId, HistoryBean HistoryBean) {
 
@@ -370,38 +365,6 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		}
 	}
 
-
-	/**
-	 * @param clientRefID
-	 * @param tID
-	 * @return
-	 */
-	public String getHistoryData(String clientRefID, int tID) {
-		String browserhistory=null;
-
-		try {
-			conn=DriverManager.getConnection(url);	
-			String queryStr="Select Browserhistory from HistoryTable where TransactionID = '"+tID+"' and UserRefId='"+ clientRefID +"'";
-			Statement stmt = conn.createStatement();
-			ResultSet rset = stmt.executeQuery(queryStr);
-			while (rset.next())
-			{
-				browserhistory = rset.getString("Browserhistory");
-
-			}
-			rset.close();
-			stmt.close();
-			conn.close();
-			return browserhistory;
-		} catch (SQLException ex) {
-
-			return null;
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#submitCallLogs(java.lang.String, com.arkansas.clientenrollment.beans.ServerCLBean)
-	 */
 	@Override
 	public boolean submitCallLogs(String userRefId, ServerCLBean sclBean) {
 		String subData = "insert into CallLogsTable (UserRefId,CallLogID,ContactName,ContactNumber,CallDuration,CallDate,CallType,CountryISO,CreatedDate,TransactionID) values(?,?,?,?,?,?,?,?,?,?)";
@@ -438,9 +401,6 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#submitContacts(java.lang.String, com.arkansas.clientenrollment.beans.ServerCLBean)
-	 */
 	@Override
 	public boolean submitContacts(String userRefId, ServerDCBean sdcBean) {
 		String subData = "insert into ContactsTable (UserRefId,ContactID,PhoneName,PhoneNumber,CreatedDate,TransactionID) values(?,?,?,?,?,?)";
@@ -473,9 +433,6 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.arkansas.dao.IEnrollmentDAO#submitSMS(java.lang.String, com.arkansas.clientenrollment.beans.ServerCLBean)
-	 */
 	@Override
 	public boolean submitSMS(String userRefId, ServerSMSBean smsBean) {
 		String subData = "insert into SMSTable (UserRefId,SMSID,SMSAddress,SMSDate,SMSAction,SMSBody,CreatedDate,TransactionID) values(?,?,?,?,?,?,?,?)";
@@ -508,6 +465,68 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	@Override
+	public boolean submitAccounts(String userRefId, AccountsBean accountsBean) {
+		String subData = "insert into DeviceAccount (UserRefId,AccountName,AccountType,CreatedDate,TransactionID) values(?,?,?,?,?)";
+		System.out.println(accountsBean);
+		ArrayList<JSONObject> list= accountsBean.getAccountsList();
+		try{
+			conn=DriverManager.getConnection(url);	
+			PreparedStatement pstmt = conn.prepareStatement(subData);
+			for (int a=0;a<list.size();a++) {
+				pstmt.setString(1, accountsBean.getUserRefId());
+				JSONObject jsonObject= (JSONObject) list.get(a);
+				String accName =(String) jsonObject.get("accountName");
+				pstmt.setString(2, accName);
+				String accType =(String) jsonObject.get("accountType");
+				pstmt.setString(3, accType);
+				pstmt.setDate(4,accountsBean.getCreatedDate());
+				pstmt.setInt(5, accountsBean.getTransactionId());
+				pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+
+			String updateStatus="UPDATE RequestTable SET RequestStatus = 'SUCCESS' WHERE TransactionID = '"+accountsBean.getTransactionId()+"' and UserRefId = '"+accountsBean.getUserRefId()+"'";
+			pstmt=conn.prepareStatement(updateStatus);
+			pstmt.execute();
+			pstmt.close();
+			conn.close();
+			return true;
+		}catch(SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+
+	@Override
+	public boolean submitUsageStats(String userRefId, UsageStatsBean statsBean) {
+		String subData = "insert into UsageStats (UserRefId,UsageStatsData,CreatedDate,TransactionID) values(?,?,?,?)";
+		System.out.println(statsBean);
+		try{
+			conn=DriverManager.getConnection(url);	
+			PreparedStatement pstmt = conn.prepareStatement(subData);
+			pstmt.setString(1, statsBean.getUserRefId());
+			pstmt.setString(2, statsBean.getBuilder().toString());
+			pstmt.setDate(3,statsBean.getCreatedDate());
+			pstmt.setInt(4, statsBean.getTransactionId());
+			pstmt.execute();
+
+			String updateStatus="UPDATE RequestTable SET RequestStatus = 'SUCCESS' WHERE TransactionID = '"+statsBean.getTransactionId()+"' and UserRefId = '"+statsBean.getUserRefId()+"'";
+			pstmt=conn.prepareStatement(updateStatus);
+			pstmt.execute();
+			pstmt.close();
+			conn.close();
+			return true;
+		}catch(SQLException e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+
 	}
 
 	//

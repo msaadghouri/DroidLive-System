@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -42,10 +42,13 @@ public class LoginServlet extends HttpServlet {
 		HttpSession session= request.getSession();
 		EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
 		List<MyUserBean> allUsers=daoImpl.getUsersList();
-		if(session.getAttribute("disData")!=null){
-			session.removeAttribute("disData");
-		}else if(session.getAttribute("hisData")!=null){
-			session.removeAttribute("hisData");
+		Enumeration<String> keys = session.getAttributeNames();
+		while (keys.hasMoreElements())
+		{
+			String key = (String)keys.nextElement();
+			if(!key.equalsIgnoreCase("userName")){
+				session.removeAttribute(key);
+			}
 		}
 		session.setAttribute("userData", allUsers);
 		response.setContentType("text/html");
@@ -72,7 +75,7 @@ public class LoginServlet extends HttpServlet {
 
 				EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
 				List<MyUserBean> allUsers=daoImpl.getUsersList();
-				session.setAttribute("userName", "USER NAME");
+				session.setAttribute("userName", email);
 				session.setAttribute("userData", allUsers);
 				response.setContentType("text/html");
 				response.sendRedirect("userDisplay.jsp");
@@ -107,24 +110,21 @@ public class LoginServlet extends HttpServlet {
 					stmt.close();
 					conn.close();
 					return true;
-
 				}
 			}
 			rs.close();
 			stmt.close();
 			conn.close();
-
 		}
 		catch(SQLException e)
 		{
 			e.printStackTrace();
 		}
 		return false;
-
 	}
+
 	private String md5Funct(String userNamePass) {
 		try {
-
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.update(userNamePass.getBytes());
 			byte byteData[] = md.digest();

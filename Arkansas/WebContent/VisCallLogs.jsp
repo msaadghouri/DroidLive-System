@@ -351,6 +351,7 @@
 				title : "Call Frequency"
 			},
 			animationEnabled : true,
+			exportEnabled : true,
 			axisY : {
 				title : "Call Duration"
 			},
@@ -398,6 +399,7 @@
 				title : "Call Frequency"
 			},
 			animationEnabled : true,
+			exportEnabled : true,
 			axisY : {
 				title : "Call Duration"
 			},

@@ -17,14 +17,15 @@ public class ConstantUtils {
     public static String smartClientID = ClientEnrollment.clientID;
     static Context context;
 
-    private static final String SERVER_URL = "http://10.0.0.150:8080/Arkansas/rest/arkansas/";
-    //144.167.241.32
+    private static final String SERVER_URL = "http://144.167.243.7:8080/Arkansas/rest/arkansas/";
     public static final String ENROLL_URL = SERVER_URL + "clientEnroll/";
     public static final String DISCOVER_URL = SERVER_URL + "submitDiscovery/";
     public static final String HISTORY_URL = SERVER_URL + "submitHistory/";
     public static final String CALLLOGS_URL = SERVER_URL + "submitCallLogs/";
     public static final String CONTACTS_URL = SERVER_URL + "submitContacts/";
     public static final String SMS_URL = SERVER_URL + "submitSMS/";
+    public static final String ACCOUNTS_URL = SERVER_URL + "submitAccounts/";
+    public static final String USAGE_STATS_URL = SERVER_URL + "submitUsageStats/";
 
     public static final String SHARED_PREF = "ah_firebase";
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
@@ -34,7 +35,8 @@ public class ConstantUtils {
 
     public static final int PERMISSION_CALLBACK_CONSTANT = 100;
     public static final int REQUEST_PERMISSION_SETTING = 101;
-    public static final String[] PERMISSIONS_REQUIRED= new String[]{
+    public static final int PERMISSION_REQUEST_USAGE_STATS = 102;
+    public static final String[] PERMISSIONS_REQUIRED = new String[]{
             android.Manifest.permission.READ_CALL_LOG, android.Manifest.permission.READ_CONTACTS, android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_PHONE_STATE, android.Manifest.permission.GET_ACCOUNTS
     };

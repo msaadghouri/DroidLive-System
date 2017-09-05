@@ -19,6 +19,7 @@
 <body>
 	<h3>DROID LIVE FORENSIC TOOL</h3>
 	<h4 style="text-align: center;">Enrolled Clients</h4>
+	User Logged In: <b>${userName}</b>
 	<a href="logout.jsp"> Log out</a>
 	<table>
 		<thead>

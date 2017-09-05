@@ -7,8 +7,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,8 +24,10 @@ import org.json.simple.JSONObject;
 
 import com.arkansas.clientenrollment.beans.CallLogsBean;
 import com.arkansas.clientenrollment.beans.RequestBean;
+import com.arkansas.clientenrollment.beans.SMSBean;
 import com.arkansas.dao.ConstantUtils;
 import com.arkansas.dao.EnrollmentDAOImpl;
+import com.arkansas.dao.TermGenerator;
 import com.arkansas.service.RequestClass;
 
 import browserHistory.BrowserHistoryDialog;
@@ -31,6 +36,8 @@ import callLogs.BeanCallCount;
 import callLogs.BeanDaysofWeek;
 import callLogs.BeanGraphElements;
 import callLogs.CallLogsDialog;
+import shortmessage.BeanSMSCount;
+import shortmessage.SMSDialog;
 
 /**
  * Servlet implementation class Test
@@ -41,6 +48,7 @@ public class Test extends HttpServlet {
 	ConstantUtils constantUtils= new ConstantUtils();
 	CallLogsDialog dialog= new CallLogsDialog();
 	BrowserHistoryDialog bHDialog= new BrowserHistoryDialog();
+	SMSDialog smsDialog= new SMSDialog();
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -64,18 +72,6 @@ public class Test extends HttpServlet {
 			RequestClass class1= new RequestClass();
 			String resValue = class1.sendRequest(userRefId, fcmId, flowName, flowDate, transId);
 			System.out.println("Request Sent Result: "+resValue);
-			//			if(flowName.equalsIgnoreCase("Discover")){
-			//				String resValue = class1.sendRequest(userRefId, fcmId, flowName, flowDate, transId);
-			//				System.out.println("Request Sent Result: "+resValue);
-			//			}else if (flowName.equalsIgnoreCase("BrowserHistory")) {
-			//				
-			//				String resValue = class1.sendRequest(userRefId, fcmId, flowName, flowDate, transId);
-			//				System.out.println("Request Sent Result: "+resValue);
-			//			}else if (flowName.equalsIgnoreCase("CallLogs")) {
-			//				
-			//				String resValue = class1.sendRequest(userRefId, fcmId, flowName, flowDate, transId);
-			//				System.out.println("Request Sent Result: "+resValue);
-			//			}
 			List<RequestBean> allRequests = daoImpl.getRequests(userRefId);
 			session.setAttribute("allRequests", allRequests);
 		}
@@ -231,6 +227,73 @@ public class Test extends HttpServlet {
 			session.setAttribute("recentVisits", recentVisits);
 			response.setContentType("text/html");
 			response.sendRedirect("VisBrowser.jsp");
+		}else if(request.getParameter("smsDatepicked")!= null){
+			String date =request.getParameter("smsDatepicked");
+			session.setAttribute("smsSelectedDate", date);
+			String userRefId=(String) session.getAttribute("clientID");
+			List<String> aa=constantUtils.returnDates(date);
+			String d1 = aa.get(0);
+			String d2 = aa.get(1);
+
+
+			ArrayList<SMSBean> smsList = smsDialog.getSMSRecords(d1,d2,userRefId);
+			ArrayList<JSONObject> freqTexter = smsDialog.getFrequentText(d1,d2,userRefId);
+			int in = 0,out=0;
+			StringBuilder allBuilder= new StringBuilder();
+
+			for(int i=0;i<smsList.size();i++){
+				allBuilder.append(smsList.get(i).getSmsBody());
+				String type=smsList.get(i).getSmsAction();
+				if(type.equalsIgnoreCase("Received")){
+					in++;
+				}
+				else if(type.equalsIgnoreCase("Sent")){
+					out++;
+				}
+			}
+			int wordCount=smsDialog.wordCount(allBuilder.toString());
+			int averageWords = 0;
+			double perSent=0.0, perReceived=0.0;
+			if(smsList.size()>0){
+				averageWords=wordCount/smsList.size();
+				perSent=(out/smsList.size())*100;
+				perReceived=(in/smsList.size())*100;
+			}
+			TermGenerator generator= new TermGenerator();
+			LinkedHashMap<String, Integer> terms = new LinkedHashMap<>();
+			ArrayList<JSONObject> extractedWords= new ArrayList<>();
+			try {
+				terms = generator.generator(allBuilder.toString());
+				Set<String> keys = terms.keySet();
+				Iterator<String> i = keys.iterator();
+				while(i.hasNext())
+				{
+					String term = i.next();
+					int value = terms.get(term);
+					JSONObject jsonObject= new JSONObject();
+					jsonObject.put("term", term);
+					jsonObject.put("value", value);
+					extractedWords.add(jsonObject);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			BeanSMSCount smsCount= new BeanSMSCount(smsList.size(), in, out, wordCount, averageWords);
+			ArrayList<BeanDaysofWeek> dowList=smsDialog.getDaysofWeek(smsList);
+
+			JSONObject percentage=new JSONObject();
+			percentage.put("Sent", perSent);
+			percentage.put("Received", perReceived);
+
+			session.setAttribute("extractedWords", extractedWords);
+			session.setAttribute("smsCount", smsCount);
+			session.setAttribute("dowList", dowList);
+			session.setAttribute("freqTexter", freqTexter);
+			session.setAttribute("percentage", percentage);
+
+			response.setContentType("text/html");
+			response.sendRedirect("VisSMS.jsp");
 		}
 	}
 	/**

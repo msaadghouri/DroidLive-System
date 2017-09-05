@@ -7,12 +7,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.arkansas.clientenrollment.beans.AccountsBean;
 import com.arkansas.clientenrollment.beans.DiscoveryBean;
 import com.arkansas.clientenrollment.beans.HistoryBean;
 import com.arkansas.clientenrollment.beans.MyUserBean;
 import com.arkansas.clientenrollment.beans.ServerCLBean;
 import com.arkansas.clientenrollment.beans.ServerDCBean;
 import com.arkansas.clientenrollment.beans.ServerSMSBean;
+import com.arkansas.clientenrollment.beans.UsageStatsBean;
 import com.arkansas.dao.EnrollmentDAOImpl;
 import com.arkansas.dao.IEnrollmentDAO;
 
@@ -93,7 +95,35 @@ public class Service {
 		}		
 		return flag;			
 	}
+
+	@POST	
+	@Path("/submitAccounts/{userRefId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean submitAccountsList(@PathParam("userRefId") String userRefId,AccountsBean accountsBean){
+		boolean flag=false;	
+		if(userRefId != "" && accountsBean != null){		
+			System.out.println(accountsBean);
+			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
+			flag=IDAO.submitAccounts(userRefId,accountsBean);
+		}		
+		return flag;			
+	}
 	
+	@POST	
+	@Path("/submitUsageStats/{userRefId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean submitUsageStats(@PathParam("userRefId") String userRefId,UsageStatsBean statsBean){
+		boolean flag=false;	
+		if(userRefId != "" && statsBean != null){		
+			System.out.println(statsBean);
+			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
+			flag=IDAO.submitUsageStats(userRefId,statsBean);
+		}		
+		return flag;			
+	}
+
 	@POST	
 	@Path("/submitCallLogs/{userRefId}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -108,7 +138,7 @@ public class Service {
 		}		
 		return flag;			
 	}
-	
+
 	@POST	
 	@Path("/submitContacts/{userRefId}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -123,7 +153,7 @@ public class Service {
 		}		
 		return flag;			
 	}
-	
+
 	@POST	
 	@Path("/submitSMS/{userRefId}")
 	@Consumes(MediaType.APPLICATION_JSON)

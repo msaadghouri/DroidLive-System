@@ -56,10 +56,12 @@
 					</div>
 					<div class="col-xs-6">
 						<p class="lead">
-							Register now for <span class="text-success">$$$</span>
+							<!--  for  -->
+							<span class="text-success">Register now</span>
 						</p>
 						<ul class="list-unstyled" style="line-height: 2">
 							<li><span class="glyphicon glyphicon-ok"></span> Device Examination</li>
+							<li><span class="glyphicon glyphicon-ok"></span> System Usage Report</li>
 							<li><span class="glyphicon glyphicon-ok"></span> Browser History Analysis</li>
 							<li><span class="glyphicon glyphicon-ok"></span> Searched Keywords<small>(support
 									for Google)</small></li>

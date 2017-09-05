@@ -22,7 +22,7 @@
 		<%=session.getAttribute("clientID")%></h4>
 
 
-	<div class="scroll" >
+	<div class="scroll">
 		<table>
 			<thead>
 				<tr>
@@ -30,7 +30,7 @@
 					<th>Date Created</th>
 					<th>Status</th>
 					<th style="display: none;"></th>
-					<!-- <th></th> -->
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -38,21 +38,23 @@
 
 				<c:forEach items="${allRequests}" var="s12" begin="${i}">
 					<tr>
-						<td class="use-address"><a href="">${s12.flowNmae}</a></td>
+						<td>${s12.flowNmae}</td>
 						<td>${s12.flowDate}</td>
 						<td>${s12.status}</td>
 						<td style="display: none;">${s12.transactionID}</td>
-						<!-- <td>
+						<td>
 
 							<button type="button" class="use-address">View</button>
 
-						</td> -->
+						</td>
 					</tr>
 				</c:forEach>
 			</tbody>
 		</table>
 	</div>
+
 	<hr />
+	<p align="center">**Window to view Device and Account Information Only**</p>
 	<%
 		if (session.getAttribute("disData") != null) {
 	%>
@@ -67,6 +69,14 @@
 	<%
 		}
 	%>
+	<%
+		if (session.getAttribute("usageData") != null) {
+	%>
+	<jsp:include page="UsageStats.jsp" />
+	<%
+		}
+	%>
+	<div id="snackbar">Under construction...</div>
 	<script>
 		function openNav() {
 		document.getElementById("mySidenav").style.display = "block";
@@ -98,5 +108,16 @@
 
 		});
 	</script>
+
+	<script>
+		function myFunction() {
+		var x = document.getElementById("snackbar")
+		x.className = "show";
+		setTimeout(function() {
+		x.className = x.className.replace("show", "");
+		}, 3000);
+		}
+	</script>
+
 </body>
 </html>

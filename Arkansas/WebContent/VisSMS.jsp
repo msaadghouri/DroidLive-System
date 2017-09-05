@@ -7,28 +7,19 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <script type="text/javascript" src="Resources/others/jquery/jquery.min.1.12.4.js"></script>
-
 <script type="text/javascript" src="Resources/others/moment/moment.min.2.18.1.js"></script>
-
-<link rel="stylesheet" type="text/css"
-	href="Resources/bootstrap/dist/css/bootstrap.css" />
-
-<!-- <script type="text/javascript"
-	src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script> -->
-
 <script type="text/javascript"
 	src="Resources/others/datepicker/daterangepicker.2.1.25.js"></script>
 
 <link rel="stylesheet" type="text/css"
+	href="Resources/bootstrap/dist/css/bootstrap.css" />
+<link rel="stylesheet" type="text/css"
 	href="Resources/others/datepicker/daterangepicker.css" />
-
 <link href="Resources/css/Menu.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css"
 	href="Resources/jQCloud-master/jqcloud/jqcloud.css" />
 
 <title>Insert title here</title>
-
-
 </head>
 <body>
 	<jsp:include page="SideNav.jsp" />
@@ -44,7 +35,7 @@
 		<div class="col-md-4">
 			<div class="boxDesign">
 				<div align="center">
-					<i><b>${bhSelectedDate}</b></i>
+					<i><b>${smsSelectedDate}</b></i>
 				</div>
 			</div>
 		</div>
@@ -52,9 +43,9 @@
 
 			<div class="boxDesign">
 				<div align="right">
-					<form name="bhDateForm" id="bhDateForm" action="Test" method="post">
+					<form name="smsDateForm" id="smsDateForm" action="Test" method="post">
 						<div id="reportrange" class="pull-right" style="padding: 5px 10px;">
-							Select Date <input id="bhDatePicked" name="bhDatePicked" type="hidden"
+							Select Date <input id="smsDatepicked" name="smsDatepicked" type="hidden"
 								onchange="datechanged()"> <b class="caret"></b>
 						</div>
 					</form>
@@ -63,91 +54,85 @@
 		</div>
 	</div>
 
-
 	<div class="row">
-		<div class="col-md-6">
-			<div class="boxDesign">
-				<b>Days of Week</b>
-				<div id="chartContainer" style="height: 350px; margin-top: 20px"></div>
 
+		<div class="col-md-3">
+			<div class="boxDesign" style="height: 50px">
+				Total Messages : <i><b>${smsCount.totalSMS}</b></i>
 			</div>
 		</div>
-		<div class="col-md-6">
-			<div class="boxDesign">
-				<b>Monthly Usage of Browser</b>
-				<div id="linechartContainer" style="height: 350px; margin-top: 20px"></div>
+		<div class="col-md-2">
+			<div class="boxDesign" style="height: 50px">
+				Sent : <i><b>${smsCount.sentSMS}</b></i>
+			</div>
 
+		</div>
+		<div class="col-md-2">
+			<div class="boxDesign" style="height: 50px">
+				Received : <i><b>${smsCount.receivedSMS}</b></i>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class="boxDesign" style="height: 50px">
+				Words : <i><b>${smsCount.totalWords}</b></i>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="boxDesign" style="height: 50px">
+				Avg. Words/Message : <i><b>${smsCount.averageWords}</b></i>
 			</div>
 		</div>
 	</div>
-
 	<div class="row">
-		<div class="col-md-3">
-			<div class="boxDesign"></div>
+		<div class="col-md-6">
+			<div class="boxDesign">
+				<b>Day of Week Analysis</b>
+				<div id="dayofWeekChart" style="height: 300px; margin-top: 20px"></div>
+			</div>
 		</div>
 		<div class="col-md-6">
+
+			<div class="boxDesign" style="height: 350px">
+				<b>Frequent Text Buddies</b>
+				<div class="scroll" style="height: 350px">
+					<table style="margin-top: 20px">
+						<tr>
+							<th>Contact Name</th>
+							<th>Message Count</th>
+						</tr>
+						<c:set var="i" value="0" />
+						<c:forEach items="${freqTexter}" var="ru" begin="${i}">
+							<tr>
+								<td>${ru.address}</td>
+								<td>${ru.freq}</td>
+							</tr>
+						</c:forEach>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-5">
+			<div class="boxDesign">
+				<b>Sent/Received Messages</b>
+				<div id="pieMessages" style="height: 300px"></div>
+			</div>
+		</div>
+		<div class="col-md-7">
 			<div class="boxDesign">
 				<div align="center">
 					<b>Searched keywords</b>
 				</div>
-				<div id="my_favorite_latin_words" style="height: 300px; margin-top: 20px"></div>
+				<div id="extractedKeywords" style="height: 300px; margin-top: 20px"></div>
 			</div>
 		</div>
-		<div class="col-md-3">
-			<div class="boxDesign"></div>
-		</div>
+
 	</div>
-
-
-	<div class="row">
-		<div class="col-md-6">
-			<div class="boxDesign" style="height: 350px">
-				<b>Table of Domains</b>
-				<div class="scroll" style="height: 350px">
-					<table style="margin-top: 20px">
-						<tr>
-							<th>Domain Name</th>
-							<th>Frequency</th>
-						</tr>
-						<c:set var="i" value="0" />
-						<c:forEach items="${topDomains}" var="td" begin="${i}">
-							<tr>
-								<td>${td.domainName}</td>
-								<td>${td.frequency}</td>
-							</tr>
-						</c:forEach>
-					</table>
-				</div>
-			</div>
-		</div>
-
-		<div class="col-md-6">
-
-			<div class="boxDesign" style="height: 350px">
-				<b>Table of Recent Visits</b>
-				<div class="scroll" style="height: 350px">
-					<table style="margin-top: 20px">
-						<tr>
-							<th>URL Name</th>
-							<th>Searched Date</th>
-						</tr>
-						<c:set var="i" value="0" />
-						<c:forEach items="${recentVisits}" var="ru" begin="${i}">
-							<tr>
-								<td>${ru.urlName}</td>
-								<td>${ru.sDate}</td>
-							</tr>
-						</c:forEach>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
 	<script src="Resources/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="Resources/others/canvasjs/canvasjs.min.js"></script>
 	<script src="Resources/jQCloud-master/jqcloud/jqcloud-1.0.4.js"></script>
+
 	<script>
 		function openNav() {
 		document.getElementById("mySidenav").style.display = "block";
@@ -156,10 +141,12 @@
 		function closeNav() {
 		document.getElementById("mySidenav").style.display = "none";
 		}
+
 		function datechanged() {
-		document.getElementById("bhDateForm").submit();
+		document.getElementById("smsDateForm").submit();
 		}
 	</script>
+
 	<script type="text/javascript">
 		$(document)
 				.ready(
@@ -188,26 +175,10 @@
 
 						});
 	</script>
-
-	<script type="text/javascript">
-		var tabData1 = '${searchedTerms}';
-		var finalz = new Array();
-		if (tabData1.length != 0) {
-			tabData = JSON.parse(tabData1);
-			for (var i = 0; i < tabData.length; i++) {
-				finalz.push({
-					text : tabData[i].term,
-					weight : tabData[i].freq
-				});
-			}
-		}
-
-		$('#my_favorite_latin_words').jQCloud(finalz);
-	</script>
-
 	<script type="text/javascript">
 		window.onload = function() {
-		var freqDays = '${bhDayAnalysis}';
+
+		var freqDays = '${dowList}';
 		var finals = [];
 		if (freqDays.length != 0) {
 			tabData = JSON.parse(freqDays);
@@ -218,7 +189,7 @@
 				});
 			}
 		}
-		renderMyChart(chartContainer, finals);
+		renderMyChart(dayofWeekChart, finals);
 
 		function renderMyChart(theDIVid, myData) {
 		var chart = new CanvasJS.Chart(theDIVid, {
@@ -234,45 +205,49 @@
 		chart.render();
 		}
 
-		var mA = '${monthlyAnalysis}';
-		var yearLine = [];
-		if (mA.length != 0) {
-			tabData = JSON.parse(mA);
-			for (var i = 0; i < tabData.length; i++) {
-				var firstdate = tabData[i].startDate;
-				var res = firstdate.split('-');
-				yearLine.push({
-					x : new Date(res[0], res[1] - 1, res[2]),
-					y : parseInt(tabData[i].frequency)
-				});
-			}
-		}
-		renderMyYear(linechartContainer, yearLine);
+		var piePoints = [ {
+			y : '${percentage.Received}',
+			name : "Received"
+		}, {
+			y : '${percentage.Sent}',
+			name : "Sent"
+		} ];
+		renderMyPie(pieMessages, piePoints);
 
-		function renderMyYear(theDIVid, myData) {
+		function renderMyPie(theDIVid, myData) {
 		var chart = new CanvasJS.Chart(theDIVid, {
-			animationEnabled : true,
+			exportFileName : "Pie Chart",
 			exportEnabled : true,
-			axisX : {
-				valueFormatString : "MMM",
-				interval : 1,
-				intervalType : "month"
-			},
-			axisY : {
-				includeZero : false
-
+			animationEnabled : true,
+			legend : {
+				verticalAlign : "bottom",
+				horizontalAlign : "center"
 			},
 			data : [ {
-				type : "area",
-				dataPoints : myData
+				type : "pie",
+				showInLegend : true,
+				toolTipContent : "{name}: <strong>{y}</strong>",
+				dataPoints : piePoints
 			} ]
 		});
-
 		chart.render();
 		}
 		}
 	</script>
+	<script type="text/javascript">
+		var tabData1 = '${extractedWords}';
+		var finalz = new Array();
+		if (tabData1.length != 0) {
+			tabData = JSON.parse(tabData1);
+			for (var i = 0; i < tabData.length; i++) {
+				finalz.push({
+					text : tabData[i].term,
+					weight : tabData[i].value
+				});
+			}
+		}
 
-
+		$('#extractedKeywords').jQCloud(finalz);
+	</script>
 </body>
 </html>
