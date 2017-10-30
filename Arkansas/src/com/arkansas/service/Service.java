@@ -22,28 +22,6 @@ import com.arkansas.dao.IEnrollmentDAO;
 public class Service {
 	public static String FIREBASE_SERVER_KEY = "AAAAwJPZdJk:APA91bFodWExOdhQrFq7rqcx1TOscgDk1NGNx-R2MMFd_VsxfscHER5SpBhshH7noTKdCXWXFAIVheJ2_CFP53dkQCggsFhi-jZMNiR8y0K_rM_HQzuNkLRn7JPpIm_yodUFFPXZBd2n";
 
-	//	@GET	
-	//	@Path("/getAgentInfo/{userName}")
-	//	@Produces(MediaType.APPLICATION_JSON)
-	//	public Response getAgentInfo(@PathParam("userName") String userName){
-	//
-	//		AgentInfo agentInfo=new AgentInfo();
-	//
-	//		if(userName.trim() != null && userName.trim() != "" && userName.trim() != "0"){
-	//
-	//			System.out.println(userName+" has trying get AgentInfo");
-	//
-	//			IEnrollmentDAO IDAO=new EnrollmentDAOImpl();
-	//
-	//			agentInfo=IDAO.getAgentInfo(userName);
-	//
-	//			System.out.println(agentInfo);				
-	//		}
-	//		return Response.status(200).entity(agentInfo.toString()).build();			
-	//	}
-
-
-
 	@POST	
 	@Path("/clientEnroll/{userName}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -57,18 +35,6 @@ public class Service {
 		}
 		return flag;			
 	}
-	//	public static void main(String args[]){
-	//		Service service= new Service();
-	//		MyUserBean bean= new MyUserBean();
-	//		bean.setUserRefId("C.12345");
-	//		bean.setUserName("testUSer");
-	//		bean.setFullName("Test Full Name");
-	//		java.sql.Date date= new java.sql.Date(Calendar.getInstance().getTime().getTime());
-	//		bean.setFirstLogOn(date);
-	//		bean.setLastLogOn(date);
-	//		bean.setHomeDir("/home/test/");
-	//		service.submitUsers("saad", bean);
-	//	}
 
 	@POST	
 	@Path("/submitDiscovery/{userRefId}")
@@ -82,6 +48,7 @@ public class Service {
 		}		
 		return flag;			
 	}
+	
 	@POST	
 	@Path("/submitHistory/{userRefId}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -109,7 +76,7 @@ public class Service {
 		}		
 		return flag;			
 	}
-	
+
 	@POST	
 	@Path("/submitUsageStats/{userRefId}")
 	@Consumes(MediaType.APPLICATION_JSON)

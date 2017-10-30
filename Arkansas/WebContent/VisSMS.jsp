@@ -19,7 +19,7 @@
 <link rel="stylesheet" type="text/css"
 	href="Resources/jQCloud-master/jqcloud/jqcloud.css" />
 
-<title>Insert title here</title>
+<title>Live Forensics|SMS Analysis</title>
 </head>
 <body>
 	<jsp:include page="SideNav.jsp" />
@@ -86,14 +86,14 @@
 	<div class="row">
 		<div class="col-md-6">
 			<div class="boxDesign">
-				<b>Day of Week Analysis</b>
+				<b>Day-based Analysis</b>
 				<div id="dayofWeekChart" style="height: 300px; margin-top: 20px"></div>
 			</div>
 		</div>
 		<div class="col-md-6">
 
 			<div class="boxDesign" style="height: 350px">
-				<b>Frequent Text Buddies</b>
+				<b>Frequent Text Trading</b>
 				<div class="scroll" style="height: 350px">
 					<table style="margin-top: 20px">
 						<tr>
@@ -113,21 +113,26 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-5">
+		<!-- <div class="col-md-5">
 			<div class="boxDesign">
 				<b>Sent/Received Messages</b>
 				<div id="pieMessages" style="height: 300px"></div>
 			</div>
+		</div> -->
+		<div class="col-md-3">
+			<div class="boxDesign"></div>
 		</div>
-		<div class="col-md-7">
+		<div class="col-md-6">
 			<div class="boxDesign">
 				<div align="center">
-					<b>Searched keywords</b>
+					<b>SMS Extracted keywords</b>
 				</div>
 				<div id="extractedKeywords" style="height: 300px; margin-top: 20px"></div>
 			</div>
 		</div>
-
+		<div class="col-md-3">
+			<div class="boxDesign"></div>
+		</div>
 	</div>
 	<script src="Resources/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="Resources/others/canvasjs/canvasjs.min.js"></script>
@@ -205,7 +210,7 @@
 		chart.render();
 		}
 
-		var piePoints = [ {
+		/* var piePoints = [ {
 			y : '${percentage.Received}',
 			name : "Received"
 		}, {
@@ -231,7 +236,7 @@
 			} ]
 		});
 		chart.render();
-		}
+		} */
 		}
 	</script>
 	<script type="text/javascript">

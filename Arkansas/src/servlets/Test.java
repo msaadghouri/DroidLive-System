@@ -23,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.json.simple.JSONObject;
 
 import com.arkansas.clientenrollment.beans.CallLogsBean;
+import com.arkansas.clientenrollment.beans.MyUserBean;
 import com.arkansas.clientenrollment.beans.RequestBean;
 import com.arkansas.clientenrollment.beans.SMSBean;
 import com.arkansas.dao.ConstantUtils;
@@ -34,7 +35,6 @@ import browserHistory.BrowserHistoryDialog;
 import callLogs.BeanCOI;
 import callLogs.BeanCallCount;
 import callLogs.BeanDaysofWeek;
-import callLogs.BeanGraphElements;
 import callLogs.CallLogsDialog;
 import shortmessage.BeanSMSCount;
 import shortmessage.SMSDialog;
@@ -63,8 +63,27 @@ public class Test extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session= request.getSession();
 		String flowName = request.getParameter("flowname").toString();
-		if(flowName!=null){
-			EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
+		EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
+		if(flowName.equalsIgnoreCase("HuntDiscover")){
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			List<MyUserBean> listOfUsers = daoImpl.getDetails4Hunt();
+			for(int i=0;i<listOfUsers.size();i++){
+				String userRefId=listOfUsers.get(i).getUserRefId();
+				String fcmId= listOfUsers.get(i).getFirebaseRegID();
+				int transId=getTransactionId();
+				Date flowDate=new Date(Calendar.getInstance().getTime().getTime());
+				RequestClass class1= new RequestClass();
+				String resValue = class1.sendRequest(userRefId, fcmId, "Discover", flowDate, transId);
+				System.out.println("Request Sent Result: "+resValue);
+
+			}
+			response.setContentType("text/html");
+			response.sendRedirect("userDisplay.jsp");
+		}else if(flowName!=null){
 			String userRefId=(String) session.getAttribute("clientID");
 			String fcmId= (String) session.getAttribute("fcmRegId");
 			int transId=getTransactionId();
@@ -74,9 +93,9 @@ public class Test extends HttpServlet {
 			System.out.println("Request Sent Result: "+resValue);
 			List<RequestBean> allRequests = daoImpl.getRequests(userRefId);
 			session.setAttribute("allRequests", allRequests);
+			response.setContentType("text/html");
+			response.sendRedirect("NewMenu.jsp");
 		}
-		response.setContentType("text/html");
-		response.sendRedirect("NewMenu.jsp");
 	}
 
 	/**
@@ -118,27 +137,27 @@ public class Test extends HttpServlet {
 			ArrayList<BeanDaysofWeek> daysofWeeks= dialog.getDaysofWeek(logList);
 			ArrayList<BeanCOI> callofInterest= dialog.getMonthlyAnalysis(d1, d2, userRefId);
 
-			ArrayList<BeanGraphElements> graph = dialog.elementGraph(d1, d2, userRefId);
-			ArrayList<String> nodes=new ArrayList<>();
-			ArrayList<String> edges=new ArrayList<>();
-
-			nodes.add("{data:{id:'"+userRefId+"'}}");
-
-			for(int i=0;i<graph.size();i++){
-				if(graph.get(i).getStrength()>=3){
-					String test=null;
-					if((graph.get(i).getcType()).equalsIgnoreCase("Outgoing")){
-						test="{data:{source:'"+userRefId+"',target:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
-
-					}else if ((graph.get(i).getcType()).equalsIgnoreCase("Incoming")) {
-						test="{data:{target:'"+userRefId+"',source:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
-					}
-					nodes.add("{data:{id:'"+graph.get(i).getcNumber()+"'}}");
-					edges.add(test);
-				}
-			}
-			session.setAttribute("nodes", nodes);
-			session.setAttribute("edges", edges);
+//			ArrayList<BeanGraphElements> graph = dialog.elementGraph(d1, d2, userRefId);
+//			ArrayList<String> nodes=new ArrayList<>();
+//			ArrayList<String> edges=new ArrayList<>();
+//
+//			nodes.add("{data:{id:'"+userRefId+"'}}");
+//
+//			for(int i=0;i<graph.size();i++){
+//				if(graph.get(i).getStrength()>=3){
+//					String test=null;
+//					if((graph.get(i).getcType()).equalsIgnoreCase("Outgoing")){
+//						test="{data:{source:'"+userRefId+"',target:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
+//
+//					}else if ((graph.get(i).getcType()).equalsIgnoreCase("Incoming")) {
+//						test="{data:{target:'"+userRefId+"',source:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
+//					}
+//					nodes.add("{data:{id:'"+graph.get(i).getcNumber()+"'}}");
+//					edges.add(test);
+//				}
+//			}
+//			session.setAttribute("nodes", nodes);
+//			session.setAttribute("edges", edges);
 			session.setAttribute("count", count);
 			session.setAttribute("pieData", pieData);
 			session.setAttribute("daysofWeeks", daysofWeeks);
@@ -170,10 +189,8 @@ public class Test extends HttpServlet {
 			String userRefId=(String) session.getAttribute("clientID");
 
 			ArrayList<BeanCOI> callofID=dialog.getCallofIntD(newStartDate, newEndDate, userRefId);
-			//ArrayList<BeanCOI> callofIF=dialog.getCallofIntF(newStartDate, newEndDate, userRefId);
 
 			session.setAttribute("callofID", callofID);
-			//session.setAttribute("callofIF", callofIF);
 			response.setContentType("text/html");
 			response.sendRedirect("VisCallLogs.jsp");
 		}
@@ -200,10 +217,8 @@ public class Test extends HttpServlet {
 			System.out.println("end date"+newEndDate);
 			String userRefId=(String) session.getAttribute("clientID");
 
-			//ArrayList<BeanCOI> callofID=dialog.getCallofIntD(newStartDate, newEndDate, userRefId);
 			ArrayList<BeanCOI> callofIF=dialog.getCallofIntF(newStartDate, newEndDate, userRefId);
 
-			//session.setAttribute("callofID", callofID);
 			session.setAttribute("callofIF", callofIF);
 			response.setContentType("text/html");
 			response.sendRedirect("VisCallLogs.jsp");
@@ -253,11 +268,11 @@ public class Test extends HttpServlet {
 			}
 			int wordCount=smsDialog.wordCount(allBuilder.toString());
 			int averageWords = 0;
-			double perSent=0.0, perReceived=0.0;
+//			double perSent=0.0, perReceived=0.0;
 			if(smsList.size()>0){
 				averageWords=wordCount/smsList.size();
-				perSent=(out/smsList.size())*100;
-				perReceived=(in/smsList.size())*100;
+//				perSent=(out/smsList.size())*100;
+//				perReceived=(in/smsList.size())*100;
 			}
 			TermGenerator generator= new TermGenerator();
 			LinkedHashMap<String, Integer> terms = new LinkedHashMap<>();
@@ -282,15 +297,15 @@ public class Test extends HttpServlet {
 			BeanSMSCount smsCount= new BeanSMSCount(smsList.size(), in, out, wordCount, averageWords);
 			ArrayList<BeanDaysofWeek> dowList=smsDialog.getDaysofWeek(smsList);
 
-			JSONObject percentage=new JSONObject();
-			percentage.put("Sent", perSent);
-			percentage.put("Received", perReceived);
+//			JSONObject percentage=new JSONObject();
+//			percentage.put("Sent", perSent);
+//			percentage.put("Received", perReceived);
 
 			session.setAttribute("extractedWords", extractedWords);
 			session.setAttribute("smsCount", smsCount);
 			session.setAttribute("dowList", dowList);
 			session.setAttribute("freqTexter", freqTexter);
-			session.setAttribute("percentage", percentage);
+//			session.setAttribute("percentage", percentage);
 
 			response.setContentType("text/html");
 			response.sendRedirect("VisSMS.jsp");

@@ -26,7 +26,7 @@
 <link rel="stylesheet" type="text/css"
 	href="Resources/jQCloud-master/jqcloud/jqcloud.css" />
 
-<title>Insert title here</title>
+<title>Live Forensics|History Analysis</title>
 
 
 </head>
@@ -67,7 +67,7 @@
 	<div class="row">
 		<div class="col-md-6">
 			<div class="boxDesign">
-				<b>Days of Week</b>
+				<b>Day-based Browser Usage Analysis</b>
 				<div id="chartContainer" style="height: 350px; margin-top: 20px"></div>
 
 			</div>
@@ -88,7 +88,7 @@
 		<div class="col-md-6">
 			<div class="boxDesign">
 				<div align="center">
-					<b>Searched keywords</b>
+					<b>Google Searched keywords</b>
 				</div>
 				<div id="my_favorite_latin_words" style="height: 300px; margin-top: 20px"></div>
 			</div>
@@ -124,7 +124,7 @@
 		<div class="col-md-6">
 
 			<div class="boxDesign" style="height: 350px">
-				<b>Table of Recent Visits</b>
+				<b>Recent Accessed URLs</b>
 				<div class="scroll" style="height: 350px">
 					<table style="margin-top: 20px">
 						<tr>

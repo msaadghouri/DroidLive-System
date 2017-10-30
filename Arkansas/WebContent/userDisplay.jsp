@@ -11,6 +11,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="Resources/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="Resources/css/Menu.css" rel="stylesheet">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
 
@@ -19,8 +20,15 @@
 <body>
 	<h3>DROID LIVE FORENSIC TOOL</h3>
 	<h4 style="text-align: center;">Enrolled Clients</h4>
-	User Logged In: <b>${userName}</b>
+
+	Logged In As:
+	<b>${userName}</b>
+	<br> Hunt:
+	<a href="<%=request.getContextPath()%>/Test?flowname=HuntDiscover"
+		onclick="myFunction()">All Device info</a>
+	<br>
 	<a href="logout.jsp"> Log out</a>
+
 	<table>
 		<thead>
 			<tr>
@@ -52,6 +60,9 @@
 		</tbody>
 	</table>
 
+
+
+	<div id="snackbar">Hunt Started</div>
 </body>
 <script type="text/javascript">
 	function getTaskId(var1, var2) {
@@ -59,6 +70,15 @@
 	document.getElementById("hello").method = var1;
 	document.getElementById("myField").value = var2;
 	document.getElementById("hello").submit();
+	}
+</script>
+<script>
+	function myFunction() {
+	var x = document.getElementById("snackbar")
+	x.className = "show";
+	setTimeout(function() {
+	x.className = x.className.replace("show", "");
+	}, 3000);
 	}
 </script>
 </html>

@@ -23,7 +23,7 @@
 
 <link href="Resources/css/Menu.css" rel="stylesheet">
 
-<title>Insert title here</title>
+<title>Live Forensics|Call Analysis</title>
 
 <style>
 #network {
@@ -97,13 +97,13 @@
 	<div class="row">
 		<div class="col-md-6">
 			<div class="boxDesign">
-				<b>Minutes Spent on Calls</b>
+				<b>Minutes on Calls</b>
 				<div id="piechartContainer" style="height: 300px"></div>
 			</div>
 		</div>
 		<div class="col-md-6">
 			<div class="boxDesign">
-				<b>Day of Week Analysis</b>
+				<b>Day-based Analysis</b>
 				<div id="chartContainer" style="height: 350px; margin-top: 20px"></div>
 			</div>
 		</div>
@@ -115,7 +115,7 @@
 		<div class="col-md-6">
 			<div class="boxDesign">
 
-				<b>Monthly Analysis</b><small>-( Click on any segment )</small>
+				<b>Month-based Analysis</b><small>  ( Click on any segment )</small>
 				<div id="interestContainer" style="height: 350px; margin-top: 20px"></div>
 			</div>
 		</div>
@@ -140,14 +140,14 @@
 		</div>
 	</div>
 
-	<div class="row">
+	<!-- <div class="row">
 		<div class="col-md-12">
 			<div id="network">
 				<b>Call Log Network Graph</b> <a href="http://localhost:8080/Arkansas/BSTest.jsp"
 					target="_blank">Enlarge</a>
 			</div>
 		</div>
-	</div>
+	</div> -->
 	<script src="Resources/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="Resources/others/canvasjs/canvasjs.min.js"></script>
 
@@ -395,12 +395,12 @@
 		}
 		function renderMyInt2(theDIVid2, myduration2, myfrequency2) {
 		var chart = new CanvasJS.Chart(theDIVid2, {
-			axisY2 : {
+			axisY : {
 				title : "Call Frequency"
 			},
 			animationEnabled : true,
 			exportEnabled : true,
-			axisY : {
+			axisY2 : {
 				title : "Call Duration"
 			},
 			axisX : {
@@ -413,12 +413,13 @@
 
 			{
 				type : "bar",
+				axisYType : "secondary",
 				showInLegend : true,
 				legendText : "Call Duration",
 				dataPoints : myduration2
 			}, {
 				type : "bar",
-				axisYType : "secondary",
+				
 				showInLegend : true,
 				legendText : "Call Frequency",
 				dataPoints : myfrequency2
@@ -444,7 +445,7 @@
 		}
 	</script>
 
-	<script type="text/javascript">
+	<!-- <script type="text/javascript">
 	var cy = cytoscape({
 		  container: document.getElementById('network'), // container to render in
 		  layout : {
@@ -484,7 +485,7 @@
 			}
 	});
 
-	</script>
+	</script> -->
 
 
 	<script type="text/javascript">

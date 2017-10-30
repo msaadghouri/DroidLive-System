@@ -86,6 +86,29 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 			return null;
 		}
 	}
+	
+	public List<MyUserBean> getDetails4Hunt() {
+		List<MyUserBean> allUserList= new ArrayList<>();
+		try {
+			conn=DriverManager.getConnection(url);	
+			String queryStr="Select UserRefId,FCMRegId from User_Table";
+			Statement stmt = conn.createStatement();
+			ResultSet rset = stmt.executeQuery(queryStr);
+			while (rset.next())
+			{
+				String userRefId = rset.getString("UserRefId");
+				String firebaseRegId = rset.getString("FCMRegId");
+				MyUserBean bean= new MyUserBean(userRefId, null, null, null, null, null,firebaseRegId);
+				allUserList.add(bean);
+			}
+			rset.close();
+			stmt.close();
+			conn.close();
+			return allUserList;
+		} catch (SQLException ex) {
+			return null;
+		}
+	}
 
 	@Override
 	public DiscoveryBean getDiscoveredData(String clientRefID, int transID) {
@@ -339,7 +362,7 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 				String domain= uri.getHost();
 				pstmt.setString(4, domain);
 				String searchedText=null;
-				if(url.contains("search")){
+				if(url.contains("search?q=")){
 					searchedText=(url.substring(url.indexOf("?q=")+3, url.indexOf("&oq"))).replace("+", " ");
 					pstmt.setString(5, searchedText);
 				}else{
@@ -528,12 +551,5 @@ public class EnrollmentDAOImpl implements IEnrollmentDAO{
 		}
 
 	}
-
-	//
-	//		public static void main(String args[]){
-	//			EnrollmentDAOImpl daoImpl= new EnrollmentDAOImpl();
-	//			DiscoveryBean a = daoImpl.getHistoryData("C.352991068681083", tID);
-	//			System.out.println(a);
-	//		}
 
 }

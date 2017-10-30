@@ -5,15 +5,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <script type="text/javascript" src="Resources/others/jquery/jquery.min.1.12.4.js"></script>
-<!-- <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script> -->
-
 <script type="text/javascript" src="Resources/others/moment/moment.min.2.18.1.js"></script>
-<!-- <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script> -->
 
-<link rel="stylesheet" type="text/css"
-	href="Resources/bootstrap/dist/css/bootstrap.css" />
-<!-- <link rel="stylesheet" type="text/css"
-	href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" /> -->
+<link rel="stylesheet" type="text/css" href="Resources/bootstrap/dist/css/bootstrap.css" />
+
 <title>Droid Analyzer</title>
 </head>
 <body>
@@ -57,7 +52,7 @@
 					<div class="col-xs-6">
 						<p class="lead">
 							<!--  for  -->
-							<span class="text-success">Register now</span>
+							<span class="text-success">Features</span>
 						</p>
 						<ul class="list-unstyled" style="line-height: 2">
 							<li><span class="glyphicon glyphicon-ok"></span> Device Examination</li>
@@ -68,9 +63,9 @@
 							<li><span class="glyphicon glyphicon-ok"></span> Call Log Anallysis</li>
 							<li><span class="glyphicon glyphicon-ok"></span> SMS Analysis</li>
 						</ul>
-						<p>
+						<!-- <p>
 							<a href="" class="btn btn-info btn-block"> Register now!</a>
-						</p>
+						</p> -->
 					</div>
 				</div>
 			</div>

