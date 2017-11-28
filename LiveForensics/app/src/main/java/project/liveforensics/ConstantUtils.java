@@ -17,7 +17,7 @@ public class ConstantUtils {
     public static String smartClientID = ClientEnrollment.clientID;
     static Context context;
 
-    private static final String SERVER_URL = "http://144.167.240.82:8080/Arkansas/rest/arkansas/";
+    private static final String SERVER_URL = "http://10.0.0.244:8080/Arkansas/rest/arkansas/";
     public static final String ENROLL_URL = SERVER_URL + "clientEnroll/";
     public static final String DISCOVER_URL = SERVER_URL + "submitDiscovery/";
     public static final String HISTORY_URL = SERVER_URL + "submitHistory/";

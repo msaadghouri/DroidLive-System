@@ -84,6 +84,8 @@ public class Test extends HttpServlet {
 			response.setContentType("text/html");
 			response.sendRedirect("userDisplay.jsp");
 		}else if(flowName!=null){
+			long startTime = System.currentTimeMillis();
+
 			String userRefId=(String) session.getAttribute("clientID");
 			String fcmId= (String) session.getAttribute("fcmRegId");
 			int transId=getTransactionId();
@@ -93,6 +95,16 @@ public class Test extends HttpServlet {
 			System.out.println("Request Sent Result: "+resValue);
 			List<RequestBean> allRequests = daoImpl.getRequests(userRefId);
 			session.setAttribute("allRequests", allRequests);
+
+			long stopTime = System.currentTimeMillis();
+
+			Runtime runtime= Runtime.getRuntime();
+			runtime.gc();
+			long memory= runtime.totalMemory()-runtime.freeMemory();
+			System.out.println("Start a flow: Memory Used in Bytes : "+memory);
+			long elapsedTime = stopTime - startTime;
+			System.out.println("Start a flow: Runtime in seconds : "+elapsedTime);
+
 			response.setContentType("text/html");
 			response.sendRedirect("NewMenu.jsp");
 		}
@@ -105,6 +117,9 @@ public class Test extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session= request.getSession();
 		if(request.getParameter("datepicked")!= null){
+
+			long startTime = System.currentTimeMillis();
+
 			String date =request.getParameter("datepicked");
 			session.setAttribute("selectedDate", date);
 			String userRefId=(String) session.getAttribute("clientID");
@@ -137,31 +152,40 @@ public class Test extends HttpServlet {
 			ArrayList<BeanDaysofWeek> daysofWeeks= dialog.getDaysofWeek(logList);
 			ArrayList<BeanCOI> callofInterest= dialog.getMonthlyAnalysis(d1, d2, userRefId);
 
-//			ArrayList<BeanGraphElements> graph = dialog.elementGraph(d1, d2, userRefId);
-//			ArrayList<String> nodes=new ArrayList<>();
-//			ArrayList<String> edges=new ArrayList<>();
-//
-//			nodes.add("{data:{id:'"+userRefId+"'}}");
-//
-//			for(int i=0;i<graph.size();i++){
-//				if(graph.get(i).getStrength()>=3){
-//					String test=null;
-//					if((graph.get(i).getcType()).equalsIgnoreCase("Outgoing")){
-//						test="{data:{source:'"+userRefId+"',target:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
-//
-//					}else if ((graph.get(i).getcType()).equalsIgnoreCase("Incoming")) {
-//						test="{data:{target:'"+userRefId+"',source:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
-//					}
-//					nodes.add("{data:{id:'"+graph.get(i).getcNumber()+"'}}");
-//					edges.add(test);
-//				}
-//			}
-//			session.setAttribute("nodes", nodes);
-//			session.setAttribute("edges", edges);
+			//			ArrayList<BeanGraphElements> graph = dialog.elementGraph(d1, d2, userRefId);
+			//			ArrayList<String> nodes=new ArrayList<>();
+			//			ArrayList<String> edges=new ArrayList<>();
+			//
+			//			nodes.add("{data:{id:'"+userRefId+"'}}");
+			//
+			//			for(int i=0;i<graph.size();i++){
+			//				if(graph.get(i).getStrength()>=3){
+			//					String test=null;
+			//					if((graph.get(i).getcType()).equalsIgnoreCase("Outgoing")){
+			//						test="{data:{source:'"+userRefId+"',target:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
+			//
+			//					}else if ((graph.get(i).getcType()).equalsIgnoreCase("Incoming")) {
+			//						test="{data:{target:'"+userRefId+"',source:'"+graph.get(i).getcNumber()+"',strength:"+graph.get(i).getStrength()+"}}";
+			//					}
+			//					nodes.add("{data:{id:'"+graph.get(i).getcNumber()+"'}}");
+			//					edges.add(test);
+			//				}
+			//			}
+			//			session.setAttribute("nodes", nodes);
+			//			session.setAttribute("edges", edges);
 			session.setAttribute("count", count);
 			session.setAttribute("pieData", pieData);
 			session.setAttribute("daysofWeeks", daysofWeeks);
 			session.setAttribute("callofInterest", callofInterest);
+
+			long stopTime = System.currentTimeMillis();
+
+			Runtime runtime= Runtime.getRuntime();
+			runtime.gc();
+			long memory= runtime.totalMemory()-runtime.freeMemory();
+			System.out.println("Call Log Analysis: Memory Used in Bytes : "+memory);
+			long elapsedTime = stopTime - startTime;
+			System.out.println("Call Log Analysis: Runtime in seconds : "+elapsedTime);
 
 			response.setContentType("text/html");
 			response.sendRedirect("VisCallLogs.jsp");
@@ -223,6 +247,9 @@ public class Test extends HttpServlet {
 			response.setContentType("text/html");
 			response.sendRedirect("VisCallLogs.jsp");
 		}else if(request.getParameter("bhDatePicked")!= null){
+
+			long startTime = System.currentTimeMillis();
+
 			String date =request.getParameter("bhDatePicked");
 			session.setAttribute("bhSelectedDate", date);
 			String userRefId=(String) session.getAttribute("clientID");
@@ -235,14 +262,28 @@ public class Test extends HttpServlet {
 			ArrayList<JSONObject> searchedTerms = bHDialog.getTopKeywords(d1,d2,userRefId);
 			ArrayList<JSONObject> topDomains = bHDialog.getTopDomain(d1,d2,userRefId);
 			ArrayList<JSONObject> recentVisits = bHDialog.getRecentVisits(d1,d2,userRefId);
+
 			session.setAttribute("bhDayAnalysis", daysAnalysis);
 			session.setAttribute("monthlyAnalysis", monthlyAnalysis);
 			session.setAttribute("searchedTerms", searchedTerms);
 			session.setAttribute("topDomains", topDomains);
 			session.setAttribute("recentVisits", recentVisits);
+
+			long stopTime = System.currentTimeMillis();
+
+			Runtime runtime= Runtime.getRuntime();
+			runtime.gc();
+			long memory= runtime.totalMemory()-runtime.freeMemory();
+			System.out.println("BH Analysis: Memory Used in Bytes : "+memory);
+			long elapsedTime = stopTime - startTime;
+			System.out.println("BH Analysis: Runtime in seconds : "+elapsedTime);
+
 			response.setContentType("text/html");
 			response.sendRedirect("VisBrowser.jsp");
 		}else if(request.getParameter("smsDatepicked")!= null){
+
+			long startTime = System.currentTimeMillis();
+
 			String date =request.getParameter("smsDatepicked");
 			session.setAttribute("smsSelectedDate", date);
 			String userRefId=(String) session.getAttribute("clientID");
@@ -268,11 +309,11 @@ public class Test extends HttpServlet {
 			}
 			int wordCount=smsDialog.wordCount(allBuilder.toString());
 			int averageWords = 0;
-//			double perSent=0.0, perReceived=0.0;
+			//			double perSent=0.0, perReceived=0.0;
 			if(smsList.size()>0){
 				averageWords=wordCount/smsList.size();
-//				perSent=(out/smsList.size())*100;
-//				perReceived=(in/smsList.size())*100;
+				//				perSent=(out/smsList.size())*100;
+				//				perReceived=(in/smsList.size())*100;
 			}
 			TermGenerator generator= new TermGenerator();
 			LinkedHashMap<String, Integer> terms = new LinkedHashMap<>();
@@ -297,15 +338,24 @@ public class Test extends HttpServlet {
 			BeanSMSCount smsCount= new BeanSMSCount(smsList.size(), in, out, wordCount, averageWords);
 			ArrayList<BeanDaysofWeek> dowList=smsDialog.getDaysofWeek(smsList);
 
-//			JSONObject percentage=new JSONObject();
-//			percentage.put("Sent", perSent);
-//			percentage.put("Received", perReceived);
+			//			JSONObject percentage=new JSONObject();
+			//			percentage.put("Sent", perSent);
+			//			percentage.put("Received", perReceived);
 
 			session.setAttribute("extractedWords", extractedWords);
 			session.setAttribute("smsCount", smsCount);
 			session.setAttribute("dowList", dowList);
 			session.setAttribute("freqTexter", freqTexter);
-//			session.setAttribute("percentage", percentage);
+			//			session.setAttribute("percentage", percentage);
+
+			long stopTime = System.currentTimeMillis();
+
+			Runtime runtime= Runtime.getRuntime();
+			runtime.gc();
+			long memory= runtime.totalMemory()-runtime.freeMemory();
+			System.out.println("SMS Analysis: Memory Used in Bytes : "+memory);
+			long elapsedTime = stopTime - startTime;
+			System.out.println("SMS Analysis: Runtime in seconds : "+elapsedTime);
 
 			response.setContentType("text/html");
 			response.sendRedirect("VisSMS.jsp");

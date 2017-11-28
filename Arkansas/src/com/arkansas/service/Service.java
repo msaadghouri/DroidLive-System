@@ -1,6 +1,7 @@
 package com.arkansas.service;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -18,9 +19,35 @@ import com.arkansas.clientenrollment.beans.UsageStatsBean;
 import com.arkansas.dao.EnrollmentDAOImpl;
 import com.arkansas.dao.IEnrollmentDAO;
 
+import shortmessage.DataModel;
+
 @Path("/arkansas")
 public class Service {
 	public static String FIREBASE_SERVER_KEY = "AAAAwJPZdJk:APA91bFodWExOdhQrFq7rqcx1TOscgDk1NGNx-R2MMFd_VsxfscHER5SpBhshH7noTKdCXWXFAIVheJ2_CFP53dkQCggsFhi-jZMNiR8y0K_rM_HQzuNkLRn7JPpIm_yodUFFPXZBd2n";
+
+//	@POST	
+//	@Path("/sendToServer")
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public boolean testAndroid1(DataModel dataModel){
+//		System.out.println(dataModel);
+//		boolean flag=false;	
+//		if(dataModel != null){
+//			System.out.println(dataModel.getFirstName()+ " " +dataModel.getLastName());
+//			flag=true;
+//		}
+//		return flag;			
+//	}
+//	
+//	@GET
+//	@Path("/getFromServer")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public DataModel getNames(){
+//		DataModel dataModel= new DataModel();
+//		dataModel.setFirstName("Saad");
+//		dataModel.setLastName("Ghouri");
+//		return dataModel;			
+//	}
 
 	@POST	
 	@Path("/clientEnroll/{userName}")
@@ -48,7 +75,7 @@ public class Service {
 		}		
 		return flag;			
 	}
-	
+
 	@POST	
 	@Path("/submitHistory/{userRefId}")
 	@Consumes(MediaType.APPLICATION_JSON)

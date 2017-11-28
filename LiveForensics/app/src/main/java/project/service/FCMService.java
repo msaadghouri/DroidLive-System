@@ -82,6 +82,7 @@ public class FCMService extends FirebaseMessagingService {
     private ServerSMSBean serverSMSBean;
     private AccountsBean accountsBean;
     private UsageStatsBean statsBean;
+    long startTime, stopTime;
 
 
     @Override
@@ -96,6 +97,7 @@ public class FCMService extends FirebaseMessagingService {
 
             try {
                 JSONObject json = new JSONObject(remoteMessage.getData().toString());
+                startTime = System.currentTimeMillis();
                 handleDataMessage(json);
             } catch (Exception e) {
                 Log.e(TAG, "Exception: " + e.getMessage());
@@ -170,23 +172,30 @@ public class FCMService extends FirebaseMessagingService {
                 Cursor mCur = this.getContentResolver()
                         .query(BOOKMARKS_URI, HISTORY_PROJECTION,
                                 "bookmark = 0", null, null);
-                mCur.moveToFirst();
-                String url = "";
-                String date = "";
+                try {
+                    mCur.moveToFirst();
+                    String url = "";
+                    String date = "";
 
-                if (mCur.getCount() > 0) {
-                    while (!mCur.isAfterLast()) {
-                        url = mCur.getString(mCur.getColumnIndex("url"));
-                        date = mCur.getString(mCur.getColumnIndex("date"));
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("url", url.toString());
-                        jsonObject.put("date", longToDateString(Long.valueOf(date)));
-                        historyArray.add(jsonObject);
+                    if (mCur.getCount() > 0) {
+                        while (!mCur.isAfterLast()) {
+                            url = mCur.getString(mCur.getColumnIndex("url"));
+                            date = mCur.getString(mCur.getColumnIndex("date"));
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("url", url.toString());
+                            jsonObject.put("date", longToDateString(Long.valueOf(date)));
+                            historyArray.add(jsonObject);
 
-                        mCur.moveToNext();
+                            mCur.moveToNext();
+                        }
                     }
+                    mCur.close();
+                } catch (NullPointerException e) {
+                    java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+                    historyBean = new HistoryBean(userRefId, historyArray, sqlDate, transactionID);
+                    Log.d("builder ", historyBean.toString());
+                    new BrwoserHistory().execute(userRefId, historyBean.toString());
                 }
-                mCur.close();
                 java.sql.Date sqlDate = new java.sql.Date(Calendar.getInstance().getTime().getTime());
                 historyBean = new HistoryBean(userRefId, historyArray, sqlDate, transactionID);
                 Log.d("builder ", historyBean.toString());
@@ -414,7 +423,7 @@ public class FCMService extends FirebaseMessagingService {
                     java.sql.Date sqlSMSDate = new java.sql.Date(smsDate.getTime());
                     smsType = smsCur.getInt(smsCur.getColumnIndexOrThrow("type"));
                     smsBody = smsCur.getString(smsCur.getColumnIndexOrThrow("body"));
-
+                    smsBody= smsBody.replace("\"", "").replace("\n", "");
                     if (smsID == -1) {
                         Log.e(TAG, "Invalid SMS");
                         return;
@@ -531,9 +540,19 @@ public class FCMService extends FirebaseMessagingService {
                     }
                     in.close();
                     System.out.println(sb.toString());
+
+                    stopTime = System.currentTimeMillis();
+
+                    Runtime runtime = Runtime.getRuntime();
+                    runtime.gc();
+                    long memory = runtime.totalMemory() - runtime.freeMemory();
+                    System.out.println("Interrogate: Memory Used in Bytes : " + memory);
+                    long elapsedTime = stopTime - startTime;
+                    System.out.println("Interrogate: Runtime in long : " + elapsedTime);
+
                     return sb.toString();
                 } else {
-                    return "Error "+responseCode;
+                    return "Error " + responseCode;
                 }
             } catch (Exception e) {
                 return e.getMessage();
@@ -583,6 +602,15 @@ public class FCMService extends FirebaseMessagingService {
                     }
                     in.close();
                     System.out.println(sb.toString());
+
+                    stopTime = System.currentTimeMillis();
+
+                    Runtime runtime = Runtime.getRuntime();
+                    runtime.gc();
+                    long memory = runtime.totalMemory() - runtime.freeMemory();
+                    System.out.println("BH: Memory Used in Bytes : " + memory);
+                    long elapsedTime = stopTime - startTime;
+                    System.out.println("BH: Runtime in long : " + elapsedTime);
                     return sb.toString();
                 } else {
                     return new String("false : " + responseCode);
@@ -634,6 +662,14 @@ public class FCMService extends FirebaseMessagingService {
                     }
                     in.close();
                     System.out.println(sb.toString());
+                    stopTime = System.currentTimeMillis();
+
+                    Runtime runtime = Runtime.getRuntime();
+                    runtime.gc();
+                    long memory = runtime.totalMemory() - runtime.freeMemory();
+                    System.out.println("Call logs: Memory Used in Bytes : " + memory);
+                    long elapsedTime = stopTime - startTime;
+                    System.out.println("Call logs: Runtime in long : " + elapsedTime);
                     return sb.toString();
                 } else {
                     return new String("false : " + responseCode);
@@ -697,9 +733,19 @@ public class FCMService extends FirebaseMessagingService {
                     }
                     in.close();
                     System.out.println(sb.toString());
+
+                    stopTime = System.currentTimeMillis();
+
+                    Runtime runtime = Runtime.getRuntime();
+                    runtime.gc();
+                    long memory = runtime.totalMemory() - runtime.freeMemory();
+                    System.out.println("Sending to Server: Memory Used in Bytes : " + memory);
+                    long elapsedTime = stopTime - startTime;
+                    System.out.println("Sending to Server: Runtime in long : " + elapsedTime);
+
                     return sb.toString();
                 } else {
-                    return "Error "+responseCode;
+                    return "Error " + responseCode;
                 }
             } catch (Exception e) {
                 return e.getMessage();

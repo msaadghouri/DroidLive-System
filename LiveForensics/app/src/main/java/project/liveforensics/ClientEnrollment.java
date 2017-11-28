@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -52,7 +54,7 @@ public class ClientEnrollment extends Activity {
     private EditText userName, fullName;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private SharedPreferences permissionStatus, buttonStatus;
-
+    long startTime,stopTime;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +69,7 @@ public class ClientEnrollment extends Activity {
         }
 
 //        SharedPreferences testing = getApplicationContext().getSharedPreferences(ConstantUtils.SHARED_PREF, 0);
-//        String fcmRegId = testing.getString("regId", "saad");
+//        String fcmRegId = testing.getString("regId", null);
 //        System.out.println("===================================="+fcmRegId);
 //        if (fcmRegId != null) {
 //            registerLayout.setVisibility(View.VISIBLE);
@@ -78,6 +80,9 @@ public class ClientEnrollment extends Activity {
             public void onReceive(Context context, Intent intent) {
 
                 if (intent.getAction().equals(ConstantUtils.REGISTRATION_COMPLETE)) {
+                    SharedPreferences testing = getApplicationContext().getSharedPreferences(ConstantUtils.SHARED_PREF, 0);
+                    String fcmRegId = testing.getString("regId", null);
+                    System.out.println("====================================" + fcmRegId);
                     Toast.makeText(getApplicationContext(), "REGISTERED ON FCM", Toast.LENGTH_SHORT).show();
                     registerLayout.setVisibility(View.VISIBLE);
                 }
@@ -166,6 +171,7 @@ public class ClientEnrollment extends Activity {
         clientEnroll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                startTime = System.currentTimeMillis();
                 int randomId = getRandomId();
                 clientID = "C." + randomId;
                 String appDirectory = getApplicationInfo().dataDir;
@@ -235,7 +241,7 @@ public class ClientEnrollment extends Activity {
                 os.close();
 
                 int responseCode = conn.getResponseCode();
-                Log.d("doInBackground Code",""+responseCode);
+                Log.d("doInBackground Code", "" + responseCode);
                 if (responseCode == HttpsURLConnection.HTTP_OK) {
                     BufferedReader in = new BufferedReader(new
                             InputStreamReader(
@@ -251,7 +257,7 @@ public class ClientEnrollment extends Activity {
                     return sb.toString();
 
                 } else {
-                    return ""+responseCode;
+                    return "" + responseCode;
                 }
             } catch (Exception e) {
                 return "Exception Error";
@@ -261,29 +267,39 @@ public class ClientEnrollment extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            Log.d("onPostExecute",""+result);
+            Log.d("onPostExecute", "" + result);
             if (result.equalsIgnoreCase("true")) {
 //                super.onPostExecute(result);
                 pDialog.dismiss();
                 session.createSession();
                 registerLayout.setVisibility(View.GONE);
                 constantLay.setVisibility(View.VISIBLE);
+
+                stopTime = System.currentTimeMillis();
+
+                Runtime runtime= Runtime.getRuntime();
+                runtime.gc();
+                long memory= runtime.totalMemory()-runtime.freeMemory();
+                System.out.println("Client Enroll: Memory Used in Bytes : "+memory);
+                long elapsedTime = stopTime - startTime;
+                System.out.println("Client Enroll: Runtime in long : "+elapsedTime);
+
             } else {
                 pDialog.dismiss();
-                Log.d("onPostExecute Error",""+result);
+                Log.d("onPostExecute Error", "" + result);
 
                 Toast.makeText(getApplicationContext(),
-                        "Failed" +result, Toast.LENGTH_SHORT).show();
+                        "Failed" + result, Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-//                new IntentFilter(ConstantUtils.REGISTRATION_COMPLETE));
-//    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(ConstantUtils.REGISTRATION_COMPLETE));
+    }
 //
 //    @Override
 //    protected void onPause() {
